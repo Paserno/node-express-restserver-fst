@@ -67,3 +67,35 @@ const server = new Server();
 
 server.listen();
 ````
+#
+### 2.- Peticiones HTTP - GET - PUT - POST - DELETE
+* En la ruta `routes()` creamos las diferentes peticiones, la que probamos con __Postman__.
+````
+this.app.get('/api', (req, res) => {
+    res.json({
+        msg: 'get API'
+    });
+});
+this.app.put('/api', (req, res) => {
+    res.json({
+        msg: 'put API'
+    });
+});
+this.app.post('/api', (req, res) => {
+    res.json({
+        msg: 'post API'
+    });
+});
+this.app.delete('/api', (req, res) => {
+    res.json({
+        msg: 'delete API'
+    });
+});
+this.app.patch('/api', (req, res) => {
+    res.json({
+        msg: 'patch API'
+    });
+});
+````
+#
+### 3.- 
