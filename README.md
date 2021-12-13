@@ -3,7 +3,7 @@
 Rest Server Básico para aprender a configurar, se utilizaron los siguientes elementos:
 * __[Express](https://www.npmjs.com/package/express)__ - [Pagina Oficial](https://expressjs.com)
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
-* 
+* __[Cors](https://www.npmjs.com/package/cors)__
 #
 #### Para reconstruir los modulos de node ejecute el siguiente comando.
 ````
@@ -114,4 +114,17 @@ this.app.post('/api', (req, res) => {
         });
 ````
 #
-### 4.-
+### 4.- CORS - Middleware
+__"CORS o Intercambio de recursos entre orígenes. Es un mecanismo para permitir o restringir los recursos solicitados en un servidor web dependiendo de dónde se inició la solicitud HTTP. Esta política se utiliza para proteger un determinado servidor web del acceso de otro sitio web o dominio"__
+* Hay que instalar el cors para su uso, para luego realizar la importación.
+````
+const cors = require('cors');
+````
+* Ya que esto es un Middleware _(lo identificamos por su uso de `.use()`)_.
+* Esto lo ponemos en nuestra clase __Server__ dentro del metodo `middleware()`, para su uso.
+````
+//CORS
+this.app.use( cors() );
+````
+#
+### 5.- 
