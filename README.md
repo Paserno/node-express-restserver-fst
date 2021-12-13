@@ -127,4 +127,71 @@ const cors = require('cors');
 this.app.use( cors() );
 ````
 #
-### 5.- 
+### 5.- Separar las rutas y el controlador de la clase
+Se crearon 2 📂carpetas, una llamada __📂routes__ y __📂controllers__, de esta manera no tenemos todo el codigo en la clase __Server__
+* Quitamos los elementos que teniamos en el metodo `routes()` de la clase __Server__, y lo guardamos en el nuevo archivo llamado `user.js` que se encuenta en la carpeta __📂routes__.
+* Realizamos la importacion de __Express__ y pedimos el elemento __Router__.
+* Exporamos el elemento `router`.
+````
+const { Router } = require('express');
+
+const router = Router();
+
+router.get(...);
+router.put(...);
+router.post(...);
+router.delete(...);
+router.patch(...);
+
+module.exports = router;
+````
+Nos vamos a la nueva carpeta __📂controllers__ y creamos el archivo `user.controllers.js`
+* Realizamos una importacion de __Express__ y nos traemos el elemento `response`
+````
+const { response } = require('express')
+````
+* Tomamos el contenido de nuestras rutas, y lo dejamos en nuestro __controlador__, y luego pegamos los __Callback__ y les declaramos una constante para su llamado.
+* Al `res.` le entregamos el elemento de __Express__.
+````
+const userGet = (req, res = response) => {
+    res.json({
+        msg: 'get API - controlador'
+    });
+}
+const userPut = (req, res = response) => {
+    res.status(500).json({
+        msg: 'put API - controlador'
+    });
+}
+````
+* Luego realizamos la exportación de todas las funciones creadas en el controlador.
+````
+module.exports = {
+    userGet,
+    userPut,
+    userPost,
+    userDelete,
+    userPatch
+}
+````
+Volvemos al la archivo `user.js` de la 📂carpeta  __routers__ 
+* Realizamos la importación de los diferentes elementos del controlador.
+* Y pasamos por referencia los elementos del controlador.
+````
+const { userGet,userGet...  } = require('../controllers/user.controllers');
+router.get('/', userGet);
+router.put('/', userGet);
+````
+En nuestra clase __Server__
+* En el controlador dejamos de la clase __Server__, dejamos la ruta de usuario.
+````
+this.usuariosPath = '/api/usuarios';
+````
+* Nos vamos a nuestro metodo y le pasamos la ruta de usuario y de donde lo sacaremos.
+````
+routes() {
+        this.app.use(this.usuariosPath, require('../routes/user'))
+    }
+````
+#
+### 6.-
