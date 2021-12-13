@@ -98,4 +98,20 @@ this.app.patch('/api', (req, res) => {
 });
 ````
 #
-### 3.- 
+### 3.- Usando codigo de respuesta HTTP con Express 🔲
+Estos son  algunos de los codigo de restpuestas HTTP mas utilizados.
+
+<img align="center" width="800" src="https://1.bp.blogspot.com/-l4ENbjEoXDw/XD9PPNWIxmI/AAAAAAAAV5M/uVEboPRHjjEKvQ4KOHWpOiGwduqGVNFtACLcBGAs/s1600/statuscode.png" />
+
+<br>
+
+* Un ejemplo de un __POST__ usado el codigo __201__ de creado correctamente, esto se puede comprobar con __Postman__.
+````
+this.app.post('/api', (req, res) => {
+            res.status(201).json({
+                msg: 'post API'
+            });
+        });
+````
+#
+### 4.-
