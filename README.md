@@ -194,4 +194,41 @@ routes() {
     }
 ````
 #
-### 6.-
+### 6.- Obtener Datos por POST
+Un procedimiento muy comun es recibir mensaje atravez del endpoint
+* Para esto nos vamos a la metodo `middleware()` de la clase __Server__, donde recibiremos algunos datos por body, gracias a __Postman__.
+* Recibiendo el `nombre` y `edad` por tipo __JSON__.
+<br><br>
+
+<img align="center" width="800" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639436298/qgeykpmegopnooz3ehhs.png" />
+<br><br>
+
+
+* Para esto utilizaremos `express.json()` que esto hará una serialización a un formato __JSON__.
+````
+// Lectura y parser del body
+this.app.use( express.json() );
+````
+Ahora vamos al controladore de __usuario__
+* En el función de POST, tenemos que extraer los elementos que nos quieren mandar.
+* Para eso hacemos una desestructuracion de elementos, para tomar el `nombre` y `edad` solamente, en el caso que se envie otro elemento no lo recibiremos en este caso.
+* Luego lo mandamos como mensaje en el objeto literario.
+````
+const userPost = (req, res = response) => {
+
+    const {nombre, edad} = req.body;
+
+    res.status(201).json({
+        msg: 'post API - controlador',
+        nombre,
+        edad
+    });
+````
+* Ahí mostramos el resultado de la petición por POST
+<br>
+
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639438121/fhlw7s9co5eotv4s5nya.png" />
+<br><br>
+
+#
+### 7.- 
