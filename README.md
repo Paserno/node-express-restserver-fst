@@ -231,4 +231,66 @@ const userPost = (req, res = response) => {
 <br><br>
 
 #
-### 7.- 
+### 7.- Parametros de segmento y query
+En el caso que queramos mandar alguna id en particular, para actualizar un registro, o dato a travez de la __URL__, necesitaremos tomar esos datos de alguna forma...
+* En este caso estamos en la 📂carpeta __routes__ con `user.js`, este ejemplo sera PUT, en el caso que queramos actualizar un dato, de por si __Express__ nos ayuda con esto y le mandamos la `/:id`.
+````
+router.put('/:id', userPut);
+````
+Ahora en el controlador de usuarios
+* Definimos una costante con nombre `id`, luego usamos el `request` con `params` para tomar la `id` que nos fue mandada por el `user.js`.
+* Luego mandamos un mensaje de la id que recibiremos
+````
+const userPut = (req, res = response) => {
+
+    const id = req.params.id;
+
+    res.json({
+        msg: 'put API - controlador',
+        id
+    });
+}
+````
+* Con __Postman__ mandamos en la url `/50` que se capturaria por la función PUT como la id.
+<br>
+
+<img align="center" width="750" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639440177/wpzuqoyfusiy5sgcqbnd.png" />
+<br><br>
+
+*  Aqui recibimos la resupuesta.
+<br>
+<img align="center" width="400" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639440337/sr60xvyfe02bwukss8i2.png" />
+<br><br>
+
+Ahora en el caso que queramos recibir una __query params__ y la querramos utilizar
+
+* El ejemplo con GET capturando __query params__
+
+
+<img align="center" width="750" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639440652/nwsd6gcmrd2aqj5xdh93.png" />
+<br><br>
+
+* En la funcion `userGet` definimos una constante, desestructurando los elementos que recibiremos.
+* En el caso que no nos manden ciertos parametros podemos definirlos, como en el ejemplo el `nombre` y `page`.
+````
+const userGet = (req = request, res = response) => {
+    const {q, nombre = 'no name', apikey, page = 1, limit} = req.query;
+
+    res.json({
+        msg: 'get API - controlador',
+        q,
+        nombre,
+        apikey,
+        page,
+        limit
+    });
+}
+````
+*  Aqui mostramos los resultados obtenidos, y ademas los datos por defecto.
+
+<br>
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639440881/nevalyzvfibaksh1p6n3.png" />
+<br><br>
+
+#
+### 8.- 
