@@ -1,6 +1,6 @@
 > __Elemento Anterior 👀:__ __[Creación de un Webserver](https://github.com/Paserno/node-express-webserver-first)__
 # REST Server con Node.js y Express
-Rest Server Básico para aprender a configurar, se utilizaron los siguientes elementos:
+Este es un Rest Server Básico que sirve como cascarón y para aprender a configurarlo. Se utilizaron los siguientes elementos:
 * __[Express](https://www.npmjs.com/package/express)__ - [Pagina Oficial](https://expressjs.com)
 * __[Doenv](https://www.npmjs.com/package/dotenv)__
 * __[Cors](https://www.npmjs.com/package/cors)__
