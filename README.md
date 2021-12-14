@@ -293,3 +293,63 @@ const userGet = (req = request, res = response) => {
 <br><br>
 
 #
+# REST Server - CRUD con MongoDB
+Este es un Rest Server - con adiciones como un CRUD hecho con MongoDB. Se utilizaron los siguientes elementos:
+* __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst#rest-server-con-nodejs-y-express)__ _(Elemetos que se habian utilizado aquí +)_
+* __[MongoDB Atlas](https://www.mongodb.com/atlas/database)__
+* __[Mongoose](https://mongoosejs.com)__
+
+#
+### 1.- Conexion a la Base de Datos con Mongoose
+Nos vamos al archivo que se encuentra en la raiz llamado `.env`, para establecer la conexión a la base de datos.
+* Donde teniamos definido el puerto, creamos una variable de entorno nueva, y ahi ponemos el enlace para conectarnos a la base de datos, en este caso a la de __MongoDB Atlas__.
+````
+PORT=8081
+MONGODB_CNN= XXXXXXXXXXXXXXXX
+````
+Se creo una 📂carpeta llamada __database/__ con un archivo `config.js`
+* Se realiza la importación a mongoose recien instalado.
+* En el archivo `config.js` se creo una función asincrona para realizar la conexión.
+* Realizamos la exportacion de la función recien creada.
+````
+const mongoose = require('mongoose');
+
+const dbConnection = async() => {...}
+
+module.exports = {
+    dbConnection
+}
+````
+
+* Se creo un __try-catch__ dentro de la función __dbConnection__ en caso de presentar un error de conexión a la base de datos.
+* Realizamos la conexión gracias a __mongoose__, y realizamos una impresión por consola si nos encontramos conectado a la base de dato.
+* Para lego hace la impreción del `error` y un mensaje de que no se pudo conectar a la base de dato dentro del __catch__.
+````
+try {
+    await mongoose.connect( process.env.MONGODB_CNN);
+    console.log('Base de datos online');
+        
+}catch (error) {
+    console.log(error);
+    throw new Error('Error al iniciar la Base de Datos');
+}
+````
+Nos vamos a la clase __Server__
+* Importamos la función de __database/`config.js`__.
+````
+const { dbConnection } = require('../database/config');
+````
+* Creamos un metodo asincrono llamado `conectarDB()`, donde llamamos la función recine importada. 
+````
+async conectarDB(){
+        await dbConnection();
+    }
+````
+* Colocamos en el __constructor__ de la clase __Server__ el metodo anteriormente creeado.
+````
+// Connectar a Base de datos
+    this.conectarDB();
+````
+#
+
+### 2.- 
