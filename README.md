@@ -365,30 +365,30 @@ const UsuarioSchema = Schema({...});
 module.exports = model( 'Usuario', UsuarioSchema );
 ````
 * Nuestro objeto literario tendra todos estos elementos mostrados.
-* Si el elemento es requerido ponesmo `require` con __true__ y un mensaje si es necesario.
+* Si el elemento es requerido ponesmo `required` con __true__ y un mensaje si es necesario.
 * En el caso que no querramos un valor repetido usamos `unique: true`.
 * Si vamos a usar algunos valores ya defindos en el caso de `rol`, utilizaremos las dos opciones que queremos mostrar `emun: ['ADMIN_ROLE', 'USER_ROLE']`, un rol de usuario y uno de administrador.
 * En el caso de poner un valor por defecto como en `estado` y `google` podremos `default:`.
 ````
  nombre: {
         type: String,
-        require: [true, 'El nombre es obligatorio'],
+        required: [true, 'El nombre es obligatorio'],
     },
     correo: {
         type: String,
-        require: [true, 'El correo es obligatorio'],
+        required: [true, 'El correo es obligatorio'],
         unique: true
     },
     password: {
         type: String,
-        require: [true, 'El contraseña es obligatorio'],
+        required: [true, 'El contraseña es obligatorio'],
     },
     img: {
         type: String,
     },
     rol: {
         type: String,
-        require: true,
+        required: true,
         emun: ['ADMIN_ROLE', 'USER_ROLE'],
     },
     estado: {
@@ -401,4 +401,45 @@ module.exports = model( 'Usuario', UsuarioSchema );
     },
 ````
 #
-### 3.-
+### 3.- POST: Creando un usuario en BD
+Estamos en el __Controlador de Usuarios__ (`controllers/user.controlers.js`) para realizar la inserción a la BD de MongoDB
+* Para esto es necesario importar nuestro modelo de usuario (`models/usuario.js`) a nuestra __coleccion de usuario__. 
+````
+const Usuario = require('../models/usuario');
+````
+En la función __userPost__ realizaremos los cambios, para recibir al nuevo usuario en BD _(convertir la función a una asincrona)_
+* Capturamos los elementos en nuestra constante `body`.
+* Creamos una nueva instancia de `Usuario`, enviandole lo que recibimos en `body`.
+* Realizamos un guardado en base de datos de lo que recibiremos por POST `.save()`, poner el `await` para esperar el guardado de los datos.
+* Luego le hacemos una impresión de los datos que se guardaron en `usuario`  a travez de `msg:`. 
+````
+const userPost = async(req, res = response) => {
+    const body    = req.body;
+    const usuario = new Usuario( body );
+    await usuario.save();
+
+    res.status(201).json({
+        msg: 'post API - controlador',
+        usuario
+    });
+}
+````
+* Le mandado un JSON en el raw gracias a __Postman__.
+<br>
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639529791/ewh0dhhzrsxiiuxz1fea.png" />
+<br>
+
+* Recibimos la impresión de los datos. 
+<br>
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639529895/qgyvqduxk5zfmv9fthbr.png" />
+<br>
+
+* Y finalmente tenemos el guardado del dato en la BD creada.
+<br>
+<img align="center" width="370" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639529980/feftwogwm1puqdhzl5at.png" />
+<br>
+
+#
+### 4.-
+
+
