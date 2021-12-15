@@ -576,3 +576,55 @@ check('rol').custom( async(rol = '') => {
     }),
 ````
 #
+### 8.- Centralizar la Validación de Rol
+Sacaremos la validación hecha en la parte anterior, para centralizarla para esto creamos un 📂carpeta __helper/__ con su archivo `db-validators.js`.
+
+<br>
+
+Extrayendo lo recien creado en la función POST especificamente en la validació del __rol__
+* Esto lo tomamos y lo dejamos en nuestro nuevo archivo `db-validators.js`.
+* Extraemos la importacion de __Role__.
+* Creamos una constante `esRolValido` donde almacenaremos la función que se extrajo de la validación de __rol__.
+* Realizamos la exportación de la función creada.
+````
+const Role = require('../models/role');
+
+const esRolValido = async(rol = '') => {
+    const existeRol = await Role.findOne({ rol });
+    if( !existeRol ){
+        throw new Error(`El rol (${ rol }) no está registrado en la BD`)
+    }
+}
+
+module.exports = {
+    esRolValido
+}
+````
+En `routes/user.js`
+* Importamos la función recien creada __esRolValido__.
+````
+const { esRolValido } = require('../helpers/db-validators');
+````
+* Y en la validación del __rol__ colocamos nuestra importación. _(Lo del ejemplo es equivalente a esto `.custom(rol => esRolValido(rol))`)_
+````
+check('rol').custom( esRolValido ),
+````
+Para quitar la contraseña de nuestra respuesta al __POST__ de una forma global, iremos a nuestro modelo de `usuario.js`
+* Sobrescribiremos el `.toJSON`, necesitaremos una función normal, para utilizar el `this` para dar una referencia a una instancia creada.
+* Realizamos la desestructuracion de la versión `__v`, la contraseña `password` y lo demas utilizando el operador spread `...usuario`
+* El `this.toObject()` genera una instancia con sus valores respectivo, como si fuera un objeto literar de JavaScript.
+* Finalmente retornamos el `usuario`, dando asi todo el contenido exepto la contraseña y la versión.
+````
+UsuarioSchema.methods.toJSON = function()  {
+    const { __v, password, ...usuario} = this.toObject();
+    return usuario;
+}
+````
+* Así se muestra el contenido, exeptuando la contraseña y la versión.
+
+<br>
+
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639555719/lztzzljo1uvw1snjingc.png" />
+<br>
+
+#

@@ -49,8 +49,7 @@ const userPost = async(req, res = response) => {
     //Guardar en BD
     await usuario.save();
 
-    res.status(201).json({
-        msg: 'post API - controlador',
+    res.json({
         usuario
     });
 }
