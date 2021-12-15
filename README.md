@@ -352,4 +352,53 @@ async conectarDB(){
 ````
 #
 
-### 2.- 
+### 2.- Modelo de Usuario
+Aquí crearemos el primer modelo de usuario
+* Realizamos las importaciones de __Mongoose__ y los elementos que necesitaremos _(esquema, modelo)_.
+* Creamos el objeto litaral que usaremos para los usuarios `UsuarioSchema`.
+* Exportamos la función `model` de __Mongoose__ con el nombre que le pondremos a la colección en BD __Usuario__ y el objeto literario `UsuarioSchema`.
+````
+const { Schema, model } = require('mongoose');
+
+const UsuarioSchema = Schema({...});
+
+module.exports = model( 'Usuario', UsuarioSchema );
+````
+* Nuestro objeto literario tendra todos estos elementos mostrados.
+* Si el elemento es requerido ponesmo `require` con __true__ y un mensaje si es necesario.
+* En el caso que no querramos un valor repetido usamos `unique: true`.
+* Si vamos a usar algunos valores ya defindos en el caso de `rol`, utilizaremos las dos opciones que queremos mostrar `emun: ['ADMIN_ROLE', 'USER_ROLE']`, un rol de usuario y uno de administrador.
+* En el caso de poner un valor por defecto como en `estado` y `google` podremos `default:`.
+````
+ nombre: {
+        type: String,
+        require: [true, 'El nombre es obligatorio'],
+    },
+    correo: {
+        type: String,
+        require: [true, 'El correo es obligatorio'],
+        unique: true
+    },
+    password: {
+        type: String,
+        require: [true, 'El contraseña es obligatorio'],
+    },
+    img: {
+        type: String,
+    },
+    rol: {
+        type: String,
+        require: true,
+        emun: ['ADMIN_ROLE', 'USER_ROLE'],
+    },
+    estado: {
+        type: Boolean,
+        default: true,
+    },
+    google: {
+        type: Boolean,
+        default: false,
+    },
+````
+#
+### 3.-
