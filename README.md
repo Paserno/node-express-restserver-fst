@@ -298,6 +298,7 @@ Este es un Rest Server - con adiciones como un CRUD hecho con MongoDB. Se utiliz
 * __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst#rest-server-con-nodejs-y-express)__ _(Elemetos que se habian utilizado aquí +)_
 * __[MongoDB Atlas](https://www.mongodb.com/atlas/database)__
 * __[Mongoose](https://mongoosejs.com)__
+* __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__
 
 #
 ### 1.- Conexion a la Base de Datos con Mongoose
@@ -440,6 +441,21 @@ const userPost = async(req, res = response) => {
 <br>
 
 #
-### 4.-
-
-
+### 4.- Bcryptjs - Encripar Contraseñas
+* Una vez realizada la instalacion de __Bcryptjs__ realizamos la importación.
+````
+const bcryptjs = require('bcryptjs');
+````
+* En la función `userPost` realizamos la desestructuración de lo que recibiremos.
+````
+const {nombre, correo, password, rol}    = req.body;
+const usuario = new Usuario( {nombre, correo, password, rol} );
+````
+* Antes de guardar en base de datos realizamos la encriptación de la contraseña.
+* Para esto usamos el metodo propio de __Bcryptjs__ el cual es `genSaltSync`, esto es el numero de vuelta que se le dara a la encriptacion "dificultad", pero por defecto es 10, entre mayor sea mas tiempo tomara.
+* Utilizamos la encripación de una sola via con `.hashSync()` este metodo necesita la propiedad que queremos incriptar, en este caso el `password` y su "dificultad" con nuestra constante `salt`.
+````
+const salt = bcryptjs.genSaltSync();
+usuario.password = bcryptjs.hashSync( password, salt );
+````
+#
