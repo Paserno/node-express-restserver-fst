@@ -479,7 +479,7 @@ En el archivo que se encuentra en la 📂carpeta `routers/user.js`
 const { check } = require('express-validator');
 ````
 * Buscamos la ruta del POST donde tenemos la referencia del __controlador de usuario__.
-* Le añadimos un tercer argumento a nuesta ruta POST, esto significa que le mandaremos un __Middleware__.
+* Le añadimos un tercer argumento a nuesta ruta POST, esto significa que le mandaremos un __Middlewares__.
 * Utilizamos el metodo `check` de __Express-validator__, esto hara que se revisen los elementos en este caso el __correo__ que fue enviado.
 ````
 router.post([
@@ -500,4 +500,40 @@ const errors = validationResult(req);
     }
 ````
 #
-### 6.-
+### 6.- Validar Todos los Campos Necesarios
+Ahora realizaremos todas las validaciones que necesita para la función POST _(nombre, contraseña y rol)_, ademas de que es necesario que se realizen mas validaciones dentro de la aplicacion por ejemplo en las funciones que asignamos para GET - PUT - DELETE, para no realizar muchos __Copy-Paste__ haremos una función separada para realizar las validaciones. 
+
+<br>
+Creamos una nueva 📂carpeta llamada __middlewares__ y agregamos un archivo llamado `validar-campos.js` 
+
+* Importamos __Express-validator__ y lo sacamos de `user.controllers.js`.
+````
+const { validationResult } = require('express-validator');
+````
+* Creamos nuestra nueva función `validarCampos()` necesitamos los diferentes parametros `( req, res, next )`.
+* Necesitaremos el parametro `next()` para cuando pase nuestra validación siga al siguiente __"Middleware"__.
+````
+const validarCampos = ( req, res, next ) => {
+
+    const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        return res.status(400).json(errors);
+    }
+
+    next();
+}
+````
+Ahora en `routes/user.js`
+* Realizamos las validaciones de nombre usando `.not().isEmpty()` para que el campo __nombre__ sea enviado y no llegue vacio.
+* En la __contraseña__ establecemos un largo minimo de  6 con `.isLength({ min:6 }`.
+* Y en el __rol__ buscaremos entre las 2 opciones que necesitamos `.isIn(['ADMIN_ROLE', 'USER_ROLE'])`.
+* Finalmente enviamos el __Middlewares__ `validarCampos`, para que en el caso que exista un error llegue hasta el validador del campo y no pase a la función POST.
+````
+router.post('/', [ 
+    check('nombre', 'El nombre es obligatorio').not().isEmpty(),
+    check('password', 'La contraseña debe ser mas de 6 letras').isLength({ min:6 }),
+    check('correo', 'El correo no es válido').isEmail(),
+    check('rol', 'No es un rol válido').isIn(['ADMIN_ROLE', 'USER_ROLE']),
+    validarCampos
+], userPost);
+````
