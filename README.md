@@ -537,3 +537,42 @@ router.post('/', [
     validarCampos
 ], userPost);
 ````
+#
+### 7.- Validar Rol contra la Base de Datos
+Ahora realizamos la validación del rol hacia la base de datos, ya que si la tenemos el dato en "duro", puede que en el día de mañana necesitemos agregar un nuevo rol y para esto tendriamos que detener la aplicación, por este motivo es mejor manejarlo por __Base de Dato__
+
+<br>
+
+Creamos un nuevo __modelo__ llamado `role.js` 
+* Creamos la referencia a __Mongoose__ ya que necesitamos el __esquema y el modelo__.
+````
+const { Schema, model } = require('mongoose');
+````
+* Creamos el objeto `RoleSchema` donde tendremos el rol.
+* Este rol sera requerido.
+* Realizamos la exportación con el nombre __Role__
+````
+const RoleSchema = Schema({
+    rol: {
+        type: String,
+        required: [true, 'El rol es obligatorio'],
+    }
+});
+
+module.exports = model( 'Role', RoleSchema );
+````
+Ahora en 📂`routes/user.js`
+* Modificamos nuestra validacion de rol en la función POST.
+* Colocamos el __Middelware__ `check` para evaluar el `rol`, le mandaremos el `.custom()` para realizar una __verificación personalizada__.
+* Creamos una función asincrona `async(rol = '')` el cual el rol evaluara lo que se mande por el __body__ de la petición __POST__ y le definimos un __String__ vacío en el caso que no venga.
+* Realizamos una validación de que si existe el __Rol__ con el `.findOne({ rol })` que nos enviarán en el __body__.
+* En el caso que no exista entrará en nuestra condición, mandando un __Error__.
+````
+check('rol').custom( async(rol = '') => {
+        const existeRol = await Role.findOne({ rol });
+        if( !existeRol ){
+            throw new Error(`El rol (${ rol }) no está registrado en la BD`)
+        }
+    }),
+````
+#
