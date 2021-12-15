@@ -299,6 +299,7 @@ Este es un Rest Server - con adiciones como un CRUD hecho con MongoDB. Se utiliz
 * __[MongoDB Atlas](https://www.mongodb.com/atlas/database)__
 * __[Mongoose](https://mongoosejs.com)__
 * __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__
+* __[Express-validator](https://www.npmjs.com/package/express-validator)__ _([docs](https://express-validator.github.io/docs/))_
 
 #
 ### 1.- Conexion a la Base de Datos con Mongoose
@@ -459,3 +460,44 @@ const salt = bcryptjs.genSaltSync();
 usuario.password = bcryptjs.hashSync( password, salt );
 ````
 #
+### 5.- Validar Campos Obligatorios - Email
+Es necesario hacer algunas validaciones dentro de nuestra aplicación, en este caso nos enfocaremos en el correo para realizar las validaciones correspondientes, aqui utilizaremos __Express-validator__ <br>
+Estamos en el __controlador de usuarios__
+* Realizamos una valizacion en el controlador, en la metodo `userPost`, para validar si existe el correo que fue enviado.
+* En el caso que exista retornara un codigo __400__ _(Petición incorrecta)_ con un mensaje diciendo que existe el correo enviado.
+````
+const existeEmail = await Usuario.findOne({correo});
+    if( existeEmail ){
+        return res.status(400).json({
+            msg: 'Este correo ya esta registrado'
+        });
+    }
+````
+En el archivo que se encuentra en la 📂carpeta `routers/user.js`
+* Instalamos __Express-validator__ y lo importamos en `routers/user.js`.
+````
+const { check } = require('express-validator');
+````
+* Buscamos la ruta del POST donde tenemos la referencia del __controlador de usuario__.
+* Le añadimos un tercer argumento a nuesta ruta POST, esto significa que le mandaremos un __Middleware__.
+* Utilizamos el metodo `check` de __Express-validator__, esto hara que se revisen los elementos en este caso el __correo__ que fue enviado.
+````
+router.post([
+    check('correo', 'El correo no es válido').isEmail(),
+], userPost); 
+````
+Ahora en el __controlador de usuario__ _(📂`controllers/user.controllers.js`)_
+* Realizamos la importacion de __Express-validator__.
+````
+const { validationResult } = require('express-validator');
+````
+* En nuestro función `userPost` revisamos si existe algun error y mandamos el metodo `validationResult` y le enviamos la solicitud `req`.
+* En el caso que haya errores enviaremos un status __400__ _(Petición incorrecta)_ y mandamos los errores creados por el __Express-validator__.
+````
+const errors = validationResult(req);
+    if( !errors.isEmpty() ){
+        return res.status(400).json(errors);
+    }
+````
+#
+### 6.-
