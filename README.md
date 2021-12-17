@@ -504,6 +504,7 @@ const errors = validationResult(req);
 Ahora realizaremos todas las validaciones que necesita para la función POST _(nombre, contraseña y rol)_, ademas de que es necesario que se realizen mas validaciones dentro de la aplicacion por ejemplo en las funciones que asignamos para GET - PUT - DELETE, para no realizar muchos __Copy-Paste__ haremos una función separada para realizar las validaciones. 
 
 <br>
+
 Creamos una nueva 📂carpeta llamada __middlewares__ y agregamos un archivo llamado `validar-campos.js` 
 
 * Importamos __Express-validator__ y lo sacamos de `user.controllers.js`.
@@ -627,4 +628,30 @@ UsuarioSchema.methods.toJSON = function()  {
 <img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1639555719/lztzzljo1uvw1snjingc.png" />
 <br>
 
+#
+### 9.- Custom Validación del Correo
+Extrayendo la validación que teniamos en la función `userPost` que realizaba una validación en los correos (📂`controllers/user.controllers.js`) y creando una mas centralizada en nuestra 📂carpetra `helpres/db-validators.js`
+* Realizamos la importación de `Usuario`.
+````
+const Usuario = require('../models/usuario');
+````
+* Creamos una constante llamada `emailExiste` y le asignamos una función asincrona _(extrayendo y pegado aquí lo que teniamos en el controlador)_.
+* Realizamos una validación de que si existe el correo, en el caso que exista se emitira un error, de que el correo ya esta registrado.
+````
+const emailExiste = async (correo = '') => {
+    const existeEmail = await Usuario.findOne({ correo });
+    if (existeEmail) {
+        throw new Error(`Este (${correo}) ya esta registrado`)
+    };
+}
+````
+En `routes/user.js`
+* Realizamos la exportación de nuestra nueva función `emailExiste`.
+````
+const { esRolValido, emailExiste } = require('../helpers/db-validators');
+````
+* En el router POST, agregamos una nueva validación personalizable, que evaluará el correo que se envie.
+````
+check('correo').custom(emailExiste),
+````
 #
