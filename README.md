@@ -655,3 +655,27 @@ const { esRolValido, emailExiste } = require('../helpers/db-validators');
 check('correo').custom(emailExiste),
 ````
 #
+### 10.- PUT Actualizar información de usuario
+Ahora haremos funcional nuestra función POST, donde si le enviamos algun __id__ pueda actualizar en base de datos, los datos que le mandemos
+* Nos vamos a nuestro metodo `userPut` en el controlador, y le implementamos los cambios.
+* Es necesario la id para la actualización de datos, y cremoas una desestructuración para tomar los datos que queramos exluir o necesitar _(extraemos el correo ya que nos manda error por una validación)_.
+* Realizamos una validación si la contraseña que nos envian es correcto a lo que se encuentra en bd.
+* Utilizamos la función de __Mongoose__ `.findByIdAndUpdate()`, la que nos ayudará con la actualización de los datos, para esto es necesario mandarle la id y lo que queremos actualizar.
+````
+const userPut = async(req, res = response) => {
+    const id  = req.params.id;
+    const { password, google, correo, ...resto} = req.body;
+
+    if( password ){
+        // Encriptar la contraseña
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync( password, salt );
+    }
+    const usuario = await Usuario.findByIdAndUpdate( id, resto)
+    res.json({
+        msg: 'put API - controlador',
+        usuario
+    });
+}
+````
+#
