@@ -22,7 +22,7 @@ const userGet = (req = request, res = response) => {
 const userPut = async(req, res = response) => {
 
     const id  = req.params.id;
-    const { password, google, correo, ...resto} = req.body;
+    const { _id, password, google, correo, ...resto} = req.body;
 
     // TODO validar contra la bd
     if( password ){

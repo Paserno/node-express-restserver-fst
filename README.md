@@ -664,7 +664,7 @@ Ahora haremos funcional nuestra función POST, donde si le enviamos algun __id__
 ````
 const userPut = async(req, res = response) => {
     const id  = req.params.id;
-    const { password, google, correo, ...resto} = req.body;
+    const {_id, password, google, correo, ...resto} = req.body;
 
     if( password ){
         // Encriptar la contraseña
