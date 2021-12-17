@@ -679,3 +679,30 @@ const userPut = async(req, res = response) => {
 }
 ````
 #
+### 11.- Validación adicional en el PUT
+Realizaremos validaciones del envio del ID, en el caso que nos manden otro id o otra cosa que no sea el id de __Mongodb__
+* Estamos en 📂`helpres/db-validators.js` donde se creará una función assincrona llamada `existeUsuarioPorId`.
+* Usamos la función de __Mongoose__ `.findById()` para encontrar el id.
+* Luego hacemos una validación si el id que nos manda no existe, se enviara un error de que no existe el id.
+````
+const existeUsuarioPorId = async ( id ) => {
+    const existeUsuario = await Usuario.findById( id );
+    if ( !existeUsuario) {
+        throw new Error(`El ID no existe ${id}`);
+    };
+}
+````
+En `routes/user.js`
+* Realizamos diferentes validaciónes, en el caso que la id no sea valida usaremos `.isMongoId()` comprobando si es una id valida propiemante de __MongoDB__.
+* Enviaremos la validación creada anteriormente `existeUsuarioPorId` _(no olvidar realizar la importación)_, de esta manera comprueba si exactamente existe esa id en la base de datos.
+* La validación del rol, de esta manera siempre recibiremos el rol correcto, pero tendremos que mandar siempre el rol.
+* Usar el `validarCampos` para que en el caso que surga un error no pase al siguiente paso, de ejecutar el controlador.
+````
+router.put('/:id',[
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(existeUsuarioPorId),
+    check('rol').custom( esRolValido ),
+    validarCampos
+], userPut);
+````
+#
