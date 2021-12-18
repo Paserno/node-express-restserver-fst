@@ -4,17 +4,16 @@ const bcryptjs = require('bcryptjs');
 
 const Usuario = require('../models/usuario');
 
-const userGet = (req = request, res = response) => {
+const userGet = async(req = request, res = response) => {
     
-    const {q, nombre = 'no name', apikey, page = 1, limit} = req.query;
+    // const {q, nombre = 'no name', apikey, page = 1, limit} = req.query;
+    const { limite = 5, desde = 0 } = req.query;
+    const usuarios = await Usuario.find()
+    .skip( Number(desde))
+    .limit(Number(limite)); 
 
     res.json({
-        msg: 'get API - controlador',
-        q,
-        nombre,
-        apikey,
-        page,
-        limit
+        usuarios
     });
 }
 
@@ -33,10 +32,7 @@ const userPut = async(req, res = response) => {
 
     const usuario = await Usuario.findByIdAndUpdate( id, resto)
 
-    res.json({
-        msg: 'put API - controlador',
-        usuario
-    });
+    res.json(usuario);
 }
 
 
@@ -45,14 +41,6 @@ const userPost = async(req, res = response) => {
     
     const {nombre, correo, password, rol}    = req.body;
     const usuario = new Usuario( {nombre, correo, password, rol} );
-
-    // Verificar si el correo existe
-    // const existeEmail = await Usuario.findOne({correo});
-    // if( existeEmail ){
-    //     return res.status(400).json({
-    //         msg: 'Este correo ya esta registrado'
-    //     });
-    // }
 
     // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
