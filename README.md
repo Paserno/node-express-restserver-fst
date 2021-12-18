@@ -726,3 +726,34 @@ const userGet = async(req = request, res = response) => {
 }
 ````
 #
+### 13.- Retornar numero total de registros en una colección
+Para saber el numero total de registro de nuestra base de dato, haremos un conteo de esto y enviarlo en el resultado del GET
+* En nuestro controlador de usuarios, usaremos el `.countDocuments()` para realizar el conteo total de nuestros registros.
+````
+const total = awiat Usuario.countDocuments()
+````
+Pero en nuetra base de datos tenemos una __eliminación logica__ que necesitamos manejar
+* Para esto creamos una constante, donde le asignamos el estado en `true`.
+* Se lo asignamos a nuestro `usuario` y `total`, de esta manera solo tomar los datos que tengan un __estado `true`__.
+````
+const eliLogica = {estado: true};
+
+const usuarios = await Usuario.find(eliLogica)
+                        .skip( Number(desde))
+                        .limit(Number(limite));
+
+const total = awiat Usuario.countDocuments(eliLogica);
+````
+Ya que existen 2 promesas en una función y resultan bloqueantes, ya que tendra que retornar una y despues la otra, es necesario evitar esto
+* Para esta solución utilizamos el `Promise.all([])` que nos permite mandar un __arreglo__ con las diferentes promesas.
+* Es necesario asignarel el `await` para que resuelva las dos promesas del arreglo, de esta manera ejecutara ambas promesas simultaneas y no continuará hasta que ambas se solucionen. _(En el caso que 1 de error todas lo daran!)_
+
+````
+const [total, usuarios] = await Promise.all([
+        Usuario.countDocuments(eliLogica),
+        Usuario.find(eliLogica)
+            .skip( Number(desde))
+            .limit(Number(limite))
+    ]);
+````
+#
