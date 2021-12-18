@@ -1,6 +1,6 @@
 # REST Server - CRUD con MongoDB
 Este es un Rest Server - con adiciones como un CRUD hecho con MongoDB. Se utilizaron los siguientes elementos:
-* __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst#rest-server-con-nodejs-y-express)__ _(Elemetos que se habian utilizado aquí +)_
+* __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst/blob/main/README1.md)__ _(Elemetos que se habian utilizado aquí +)_
 * __[MongoDB Atlas](https://www.mongodb.com/atlas/database)__
 * __[Mongoose](https://mongoosejs.com)__
 * __[Bcryptjs](https://www.npmjs.com/package/bcryptjs)__
