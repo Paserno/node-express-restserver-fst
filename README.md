@@ -709,10 +709,10 @@ router.put('/:id',[
 ### 12.- GET: Obtener todos los usuarios de forma paginada
 En nuestro controlador
 * En nuestra función GET, le agregamos un `async`.
-* Desestructuramos dos elementos que esperamos recibir, el `limite` dandole un valor por defecto de 5y `desde`.
+* Desestructuramos dos elementos que esperamos recibir, el `limite` dandole un valor por defecto de 5 y `desde`.
 * Agregamos la función `.find()` para traer ciertos elementos.
 * Usamos el `.skip()` para traer los elementos despues de un punto.
-* Usamos el ``.limit()` para traes los elementos asingados del primero hasta el numero enviado.
+* Usamos el `.limit()` para traes los elementos asingados del primero hasta el numero enviado o por defecto traer los primeros 5.
 ````
 const userGet = async(req = request, res = response) => {
     const { limite = 5, desde = 0 } = req.query;
