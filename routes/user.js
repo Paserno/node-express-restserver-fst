@@ -32,7 +32,12 @@ router.post('/', [ // check de express-validator revisa el elemento que le envia
     check('rol').custom( esRolValido ),
     validarCampos
 ], userPost); // si son dos argumentos es el path y controlador | si son 3 hay un middlware
-router.delete('/', userDelete);
+
+router.delete('/:id', [
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(existeUsuarioPorId),
+    validarCampos
+], userDelete);
 
 router.patch('/', userPatch);
 

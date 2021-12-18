@@ -757,3 +757,32 @@ const [total, usuarios] = await Promise.all([
     ]);
 ````
 #
+### 14.- Delete: Borrando un usuario de la base de datos
+En esta parte se mostrará como hacer eliminaciones, tanto logica como fisica
+<br>
+
+Estamos en `routes/user.js` 
+* Para validar la id que nos envien es necesario realizar las validaciónes correspondientes, primero necesitamos recibir la id `/:id`.
+* Luego nos traemos las validaciones realizadas en el GET, el cual es el primero validar si la id que nos manda es acorde a __MongoDB__ y como segundo validaro, es si existe en nuestra base de datos esa id.
+* Para que no siga ejecutando mandamos `validarCampos`
+````
+router.delete('/:id', [
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom(existeUsuarioPorId),
+    validarCampos
+], userDelete);
+````
+Estamos en `controllers/user.controllers.js`
+* Para realizar una eliminación fisica en la BD es necesario `.findByIdAndDelete(id)`, pero esta no es recomendable ya que perjudica la estabilidad referencial que existe en la Base de datos.
+````
+// Borrar Fisicamente 
+const usuario = await Usuario.findByIdAndDelete(id);
+````
+* La que si es recomendable es hacer esta, la eliminación logica, cambiando el estado del registro `.findByIdAndUpdate(id, {estado: false})` el estado cambiandolo a __false__.
+* Luego enviado el `usuario` que fue eliminado.
+````
+ const usuario = await Usuario.findByIdAndUpdate(id, {estado: false});
+
+res.json(usuario);
+````
+#
