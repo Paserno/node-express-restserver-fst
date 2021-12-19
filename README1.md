@@ -960,3 +960,15 @@ res.json({
     })
 ````
 #
+### 4.- Cambiar Visualización _id por uid en Mongoose
+Es necesario cambiar el nombre de id, para identificarlo de una mejor manera, para esto lo cambiamos en el modelo `models/usuario.js`
+* Extraemos el `_id` del `toObject()`.
+* Le asignamos el `_id` a  `usuario.uid`.
+````
+UsuarioSchema.methods.toJSON = function()  {
+    const { __v, password, _id, ...usuario} = this.toObject();
+    usuario.uid = _id
+    return usuario;
+}
+````
+#
