@@ -794,6 +794,7 @@ res.json(usuario);
 Esto es posterior a __[REST Server - CRUD con MongoDB](https://github.com/Paserno/node-express-restserver-fst/blob/main/README2.md)__, Este REST Server tendra autentificación con Token (JWT). Se utilizaron los siguientes elementos:
 * __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst/blob/main/README1.md)__  _(Primera versión [V1.0.0](https://github.com/Paserno/node-express-restserver-fst/tree/v1.0.0))_
 * __[REST Server - CRUD con MongoDB](https://github.com/Paserno/node-express-restserver-fst/blob/main/README2.md)__  _(Segunda versión anterior [V2.0.0](https://github.com/Paserno/node-express-restserver-fst/tree/v2.0.0))_
+* __[JWT](https://www.npmjs.com/package/jsonwebtoken)__ - [Pagina Oficial](https://jwt.io)
 
 
 #
@@ -900,3 +901,62 @@ const contraseñaValida = bcryptjs.compareSync( password, usuario.password );
         }
 ````
 # 
+### 3.- Generar un JWT
+En `.env` donde tenemos las variables de entorno
+* Creamos una firma para los token que generemos.
+````
+SECRETORPRIVATEKEY= XXXXXXXXXX
+````
+Creamos un archivo en 📂`helprers/generar-jwt.js` 
+* Realizamos una importación de __JWT__, que recien instalamos.
+````
+const jwt = require('jsonwebtoken');
+````
+* Necesitamos pasar nuestro __Callback__ a una __Promesa__, para esto creamos una función `generarJWT()` la cual le entregamos un `uid` que lo definimos como un string vacio.
+* Rotornamos una __Promesa__ con sus argumentos.
+* En nuestra constante llamada `payload` _(el cuerpo del token)_ le asignamos el `uid`._(Se le puede asignar mas elementos al __Payload__, pero no es recomendable mandar una contraseña)_
+* Tenemos que generar el JWT con `jwt.sign()`, para esto le mandamos el `payload` y la firma que generamos en las variables de entorno `.env`, ademas de el tiempo de expiración del token, en este caso asginamos __8 horas__.
+* Luego viene el __Callback__ que recibiremos el error `err` y el __token__.
+* Realizamos un condición en el caso que exista un error _(con los argumentos de la promesa)_. 
+````
+const generarJWT = ( uid = '' ) => {
+    return new Promise( (resolve, reject) =>{
+        const payload = { uid };
+
+        jwt.sign( payload, process.env.SECRETORPRIVATEKEY, {
+            expiresIn: '8h'
+        },( err, token) => {
+
+            if(err){
+                console.log(err);
+                reject( 'No se pudo generar el token' )
+            }else{
+                resolve( token );
+            }
+        })
+    }); 
+}
+````
+* Relizamos la exportación de `generarJWT`.
+````
+module.exports = {
+    generarJWT
+}
+````
+En `controllers/auth.controllers.js` con la función __login__
+* Realizamos la importación de la función que creamos anteriormente.
+````
+const { generarJWT } = require("../helpers/generar-jwt");
+````
+* Generamos nuestro Token con un `await`, enviandole el id del usuario que se "logio".
+````
+const token = await generarJWT( usuario.id );
+````
+* Mostramos el usuario ademas del token, como respuesta del POST.
+````
+res.json({
+        usuario,
+        token
+    })
+````
+#
