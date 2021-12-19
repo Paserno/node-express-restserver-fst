@@ -854,3 +854,49 @@ router.post('/login', [
 module.exports = router;
 ````
 #
+### 2.- Login de usuario
+En `controllers/auth.controllers.js`
+* Agregamos un __TryCatch__ en el caso que haya un problema con el servidor, y mandamos un mensaje de error con un mensaje.
+````
+try{
+
+} catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            msg: 'Hable con el administrador'
+        })
+    }
+````
+* Realizamos una desestructuración de lo que recibiremos el correo y contraseña. _(fuera del trycatch)_
+````
+const { correo, password } = req.body;
+````
+Realizaremos algunas validación
+* Realizamos la validación del correo, si esque existe o no.
+* Enviamos un mensaje 400 en el caso que no exista y un mensaje para informarnos cual fue el error. _(Enviamos el mensaje de correo para saber cual poderia ser el problema, pero luego lo borraremos)_
+````
+const usuario = await Usuario.findOne({correo});
+        if(!usuario){
+            return res.status(400).json({
+                msg: 'Usuario / Password no son validos - correo'
+            })
+        }
+````
+* Validar si en la base de dato esta con __"Eliminación Logica"__.
+````
+if( !usuario.estado ){
+    return res.status(400).json({
+        msg: 'Usuario / Password no son validos - estado: false'
+    })
+}
+````
+* Verificar la contraseña, no olvidar hacer la importación de `bcryptjs`, enviaremos la contraseña que recibiremos con la que esta en la BD para compararla.
+````
+const contraseñaValida = bcryptjs.compareSync( password, usuario.password );
+        if( !contraseñaValida){
+            return res.status(400).json({
+                msg: 'Usuario / Password no son validos - Password'
+            })
+        }
+````
+# 
