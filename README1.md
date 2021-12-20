@@ -1033,3 +1033,32 @@ router.delete('/:id', [
     validarJWT,...])
 ````
 #
+### 5.- Obtener información del usuario autenticado - Validaciones 
+* Leer el usuario que corresponde al __uid__, de esta manera obtenemos todos los datos de quien eliminara.
+* No olvidar importar del __modelo de usuario__ `require('../models/usuario');`.
+````
+const {uid} = jwt.verify(token, process.env.JWT_KEY);
+
+const usuario = await Usuario.findById(uid);
+````
+* Realizamos una validación en el caso que tengamos un Token correcto pero el usuario fue eliminado recientemente de la BD _"Eliminacion Fisica"_.
+````
+if( !usuario){
+    return res.status(401).json({
+        msg: 'Token no válido - usuario no existe en DB'
+    })
+}
+````
+* Verificar si el __uid__ tiene estado en true, esto quiere decir que el usuario no este elimiando _"Eliminación Logica"_.
+* Se remplazo `req.uid = uid;` por __usuario__.
+````
+if( !usuario.estado){
+    return res.status(401).json({
+        msg: 'Token no válido - usuario con estado false'
+    })
+}
+req.usuario = usuario;
+````
+En `controllers/user.controllers.js` 
+* Eliminamos los cambios que se tengan, de mandar el `uid`, solamente era para comprobar quien era el usuario que elimino.
+#
