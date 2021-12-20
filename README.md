@@ -115,7 +115,7 @@ const contraseñaValida = bcryptjs.compareSync( password, usuario.password );
 En `.env` donde tenemos las variables de entorno
 * Creamos una firma para los token que generemos.
 ````
-SECRETORPRIVATEKEY= XXXXXXXXXX
+JWT_KEY= XXXXXXXXXX
 ````
 Creamos un archivo en 📂`helprers/generar-jwt.js` 
 * Realizamos una importación de __JWT__, que recien instalamos.
@@ -133,7 +133,7 @@ const generarJWT = ( uid = '' ) => {
     return new Promise( (resolve, reject) =>{
         const payload = { uid };
 
-        jwt.sign( payload, process.env.SECRETORPRIVATEKEY, {
+        jwt.sign( payload, process.env.JWT_KEY, {
             expiresIn: '8h'
         },( err, token) => {
 
@@ -180,5 +180,66 @@ UsuarioSchema.methods.toJSON = function()  {
     usuario.uid = _id
     return usuario;
 }
+````
+#
+### 4.- Proteger ruta medianto un Token - Middlewares - Delete
+Creamos un validador de __JWT__, el ejemplo que se mostrará es del borrar un usuario, ya que alguien tendra que estar registrado para borrar a un usuario _(en el futuro tendra que ser el rol de ADMIN el que pueda borrar un usuario)_
+#### En el controllador `controllers/user.controllers.js` en la función `userDelete`
+* Necesitamos enviar el `req.uid` para saber quien elimino el usuario.
+* Retonramos al usuario que fue eliminamos y agregamos el `uid` quien elimino al usuario.
+````
+const userDelete = async(req, res = response) => {
+    const {id, ...resto} = req.params;
+//* + *//const uid = req.uid;
+
+    const usuario = await Usuario.findByIdAndUpdate(id, {estado: false});
+
+    res.json({usuario, uid});
+}
+````
+Creamos un nuevo archivo `middleweres/validar-jwt`
+* Realizamos la importacio de express para tener ayuda de tipado.
+* Importamos JWT para utilizarlo.
+````
+const { response, request } = require('express');
+const jwt = require('jsonwebtoken');
+````
+* Creamos una función que enviamos los elementos de un __Middlewares__ _(req, res, next)_.
+* Lo encerramos en un __try-catch__ en el caso de que no nos envie un Token valido, enviandole un error 401 _(No autorizada)_.
+* Capturamos el token que nos enviaran en el header `req.header` con el nombre __"x-token"__.
+* Hacemos una condicion, en el caso que no sea enviado el __"x-token"__, saltara el error con el mensaje correspondiente.
+* Realizamos la verificación del __JWT__, le enviamos el elemento del __header__, y la firma.
+````
+const validarJWT = (req = request, res = response, next) => {
+    try {
+        const token= req.header('x-token');
+
+        if(!token){
+            return res.status(401).json({
+                ok: false,
+                msg: 'No hay token en la peticion'
+            });
+        }
+        const {uid} = jwt.verify(token, process.env.JWT_KEY);
+        req.uid = uid;
+        next();
+        
+    } catch (e) {
+        return res.status(401).json({
+            ok:false,
+            msg: ' Token no es valido'
+        });
+    }
+}
+````
+En `routes/user.js`
+* Realizamos la importación de nuestra función creada.
+````
+const { validarJWT } = require('../middlewares/validar-jwt');
+````
+* Insertamos en el __Delete__ la validación del token.
+````
+router.delete('/:id', [
+    validarJWT,...])
 ````
 #

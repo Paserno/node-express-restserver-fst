@@ -2,6 +2,8 @@ const { Router } = require('express');
 const { check } = require('express-validator');
 
 const { validarCampos } = require('../middlewares/validar-campos');
+const { validarJWT } = require('../middlewares/validar-jwt');
+
 const { esRolValido, emailExiste, existeUsuarioPorId } = require('../helpers/db-validators');
 
 const { 
@@ -34,6 +36,7 @@ router.post('/', [ // check de express-validator revisa el elemento que le envia
 ], userPost); // si son dos argumentos es el path y controlador | si son 3 hay un middlware
 
 router.delete('/:id', [
+    validarJWT,
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom(existeUsuarioPorId),
     validarCampos
