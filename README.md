@@ -307,3 +307,45 @@ if( !req.usuario ){
 next();
 ````
 #
+### 7.- Middleware: Validar-roles, validar otros roles
+En algunos casos es necesario asignar varios roles aparte del administrador, que gestione ciertos __endpoint__, en este caso le daremos poder al `VENTAS_ROLE` para que pueda borrar datos de usuario para este ejemplo
+#### En `routes/user.js`
+* En el ejemplo anterior solo el __admin__ podia borrar usuarios, esta vez tambien podra el rol de `VENTAS_ROLE`, para esto comentaremos el __Middleware__ de solo admin.
+* Crearemos un __Middleware__ _(Función)_ para validar otros tipos de roles. _(una vez creado lo importamos)_
+````
+ validarJWT,
+    // esAdminRole,
+    tieneRole('ADMIN_ROLE', 'VENTAS_ROLE'),
+````
+En `middlewares/validar-roles.js`
+* Utilizaremos el __Opreador Rest__ para recibir el resto de operaciones _(En el caso que se envien mas de 1 rol)_.
+* No olvidar hacer la exportacion de la función.
+````
+const tieneRole = ( ...roles ) => {...}
+````
+* Retornamos la función con los diferentes elementos de un __Middleware__ _( req, res y next )_.
+* En el caso que pase las validaciónes que mencionaremos despues, pasara al siguiente __Middleware__ con `next()`.
+````
+return (req, res = response, next) => {
+    ...
+   next();
+}
+````
+* Realizamos la validación de que si tenemos validado el token antes.
+````
+if( !req.usuario ){
+    return res.status(500).json({
+        msg: 'Se quiere verificar el role, sin validar el token Primero'
+    });
+}
+````
+* Realizamos la validación de que si el rol que esta haciendo la eliminación `req.usuario.rol` tiene algun rol permitido para hacer este tipo de eliminacion `!roles.includes` en este caso solo `tieneRole('ADMIN_ROLE', 'VENTAS_ROLE')`.
+* En el caso que no cuente con esos roles asignados, saltará el return con un __status 401__ y un mensaje de error. 
+````
+if( !roles.includes( req.usuario.rol )){
+    return res.status(401).json({
+        msg: `El servicio requiere uno de estos roles ${ roles }`
+    });
+}
+````
+#
