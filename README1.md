@@ -1139,3 +1139,31 @@ if( !roles.includes( req.usuario.rol )){
 }
 ````
 #
+### 8.- Optimizar Importaciones de Node
+Ya que en nuestra ruta de usuario existian muchos __Middleware__ importados, se prefirio optimizar, para esto se creo en la 📂carpeta `middlewares` un archivo llamado `index.js` para enviarle todas las importaciones
+* Extraemos todas las importaciones que tenia `routes/user.js` relacionada a la 📂carpeta `middlewares`.
+* Creamos unas constantes nuevas, que tengan relación con el archivo.
+````
+const validarCampos = require('../middlewares/validar-campos');
+const validarJWT    = require('../middlewares/validar-jwt');
+const validaRoles   = require('../middlewares/validar-roles');
+````
+* Realizamos una exportación de los diferentes elementos, con ayuda del __operador spread__. 
+````
+module.exports = {
+    ...validarCampos,
+    ...validarJWT,
+    ...validaRoles,
+}
+````
+En `routes/user.js`
+* Aqui remplazamos lo que teniamos y lo remplazamos por las funciones unicamente _(Middlewares)_.
+````
+const {
+    validarCampos,
+    validarJWT,
+    esAdminRole,
+    tieneRole
+} = require('../middlewares');
+````
+#
