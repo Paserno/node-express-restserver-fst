@@ -1062,3 +1062,38 @@ req.usuario = usuario;
 En `controllers/user.controllers.js` 
 * Eliminamos los cambios que se tengan, de mandar el `uid`, solamente era para comprobar quien era el usuario que elimino.
 #
+### 6.- Middleware: Verificar Rol de administrador
+Es necesario tener un rol de Administrador para realizar algunos cambios, como la eliminación de un usuario, para esto realizaremos algunas validaciones
+#### Se Crea `middlewares/validar-roles.js`
+* Se realiza la importación de __Express__ para tener una ayuda de tipado.
+* se crea la función `esAdminRole`, el cual necesitamos el "req, res y next".
+````
+const { response } = require("express")
+
+const esAdminRole = ( req, res = response, next) => {...}
+````
+* Verificamos si existe `req.usuario`, ya que eso se crea en el `middlewares/validar-jwt.js`, en el caso que todo salga bien el las validaciones del __JWT__.
+* Realizamos una validación para comprobar que primero se verifique el toquen y luego que se realize la verificación del __rol Admin__.
+* Para esta validación enviamos un error tipo __500__, para dar a conocer que es un error del servidor, por no verificar primero el token.
+````
+if( !req.usuario ){
+        return res.status(500).json({
+            msg: 'Se quiere verificar el role, sin validar el token Primero'
+        })
+    }
+````
+* Ya que se creo el `req.usuario` en el validadro de __JWT__, nos traemos el rol y nombre de la persona que quiere realizar la eliminación del usuario.
+* Realizamos una validación, si la persona que quiere eliminar al usuario, tiene el rol de __ADMIN_ROLE__, en el caso que no lo tenga se enviará un error __401__, con un mensaje.
+* En el caso que todo salga bien, y tenga su rol correspondiente pasara a `next()`, al siguiente __Middleware__.
+````
+ const { rol, nombre } = req.usuario;
+    
+    if( rol !== 'ADMIN_ROLE' ){
+        return res.status(401).json({
+            msg: `${ nombre } no es administrador - No puede hacer esto`
+        });
+    }
+
+next();
+````
+#
