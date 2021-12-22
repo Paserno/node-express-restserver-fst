@@ -1377,3 +1377,35 @@ res.json({
         })
 ````
 #
+### 7.- Logout - Google Identity - Frontend
+En el codigo de `index.html` realizaremos un __Logout__ 
+* Vamos a la seguna promesa de nuestra pantalla y le mandamos el email hacia el __LocalStorage__, para almacenarlo.
+````
+.then( resp => {
+                console.log(resp)
+                localStorage.setItem( 'email', resp.usuario.correo )
+            })
+````
+* Hacemos un boton con HTML y le agregamos unos estilos.
+````
+<button id="rainbow-button" class="button">
+          Sign-out
+      </button>
+````
+* Y nos creamos una función para salirnos de la sesión, para esto buscamos el id del boton.
+* Realizamos un evento `onclick` y es necesario realizar el `disableAutoSelect()` para registrar el estado de las [cookies](https://developers.google.com/identity/gsi/web/reference/js-reference).
+* Es necesario usar el `revoke()` para [remover](https://developers.google.com/identity/gsi/web/guides/revoke) la sesión de google, para esto tambien llamamos el limpiar el __LocalStorage__ y recargar la pagina.
+````
+ const button = document.getElementById('rainbow-button');
+        button.onclick = () => {
+
+            console.log( google.accounts.id )
+            google.accounts.id.disableAutoSelect();
+
+            google.accounts.id.revoke( localStorage.getItem( 'email' ), done =>{
+                localStorage.clear();
+                location.reload();
+            });
+        }
+````
+#

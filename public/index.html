@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+
     <title>Google Sign-in</title>
 </head>
 <body>
@@ -25,6 +27,10 @@
          data-logo_alignment="left">
       </div>
 
+      <button id="rainbow-button" class="button">
+          Sign-out
+      </button>
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
@@ -42,12 +48,27 @@
                 body: JSON.stringify(body)
             })
                 .then( resp => resp.json())
-                .then( respi => {
-                    console.log(respi)
+                .then( resp => {
+                    console.log(resp)
+                    localStorage.setItem( 'email', resp.usuario.correo )
                 })
                 .catch(console.warn);
-      
+            }
+        
+
+        const button = document.getElementById('rainbow-button');
+        button.onclick = () => {
+
+            console.log( google.accounts.id )
+            google.accounts.id.disableAutoSelect();
+
+            google.accounts.id.revoke( localStorage.getItem( 'email' ), done =>{
+                localStorage.clear();
+                location.reload();
+            });
         }
+
+
       </script>
 </body>
 </html>
