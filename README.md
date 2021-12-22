@@ -157,10 +157,54 @@ const { googleVerify } = require("../helpers/google-verify");
             id_token
         })
     } catch (error) {
-        json.status(400).json({
+        res.status(400).json({
             ok: false,
             msg: 'El Token no se pudo verificar'
         })
     }
+````
+#
+### 6.- Crear un usuario personalizado con las credenciales de Google
+Se realizaran algunas validaciones y un registro a la BD en el caso que el usuario no exista
+* En nuestra función `googleSignIn()` del controlador de `auth.controllers.js`, en el __Try__.
+* Verificamos si el correo que recibimos del __Token de Google__ ya existe.
+````
+let usuario = await Usuario.findOne({ correo });
+````
+* En el caso que no exista, tenemos que crear un nuevo usuario.
+* Le insertamos los datos que nos pasa el __Token de Google__ y le definimos un rol por defecto.
+* Luego creamos el nuevo usuario y lo guardamos en la Base de Dato.
+````
+if( !usuario ){
+
+            const data = {
+                nombre,
+                correo,
+                password: ':P',
+                img,
+                rol: 'USER_ROLE',
+                google: true
+            };
+            
+            usuario = new Usuario(data);
+            await usuario.save();
+        }
+````
+* Verificamos si el estado del usuario es `false`, si es así le mandamos un mensaje de que el usuario esta bloqueado.
+````
+ if( !usuario.estado ){
+            return res.status(401).json({
+                msg: 'Hable con el administrador, usuario bloqueado'
+            });
+        }
+````
+* Mandamos como respuesta al Frontend el usuario con el token que se generó.
+````
+const token = await generarJWT( usuario.id );
+
+res.json({
+            usuario,
+            token
+        })
 ````
 #
