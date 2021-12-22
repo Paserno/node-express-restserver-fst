@@ -31,8 +31,21 @@
         function handleCredentialResponse(response) {
            
             // Google Token : ID_TOKEN
+            // console.log('id_token', response.credential);
+            const body = { id_token: response.credential }
 
-           console.log('id_token', response.credential);
+            fetch('http://localhost:8081/api/auth/google',{
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+                .then( resp => resp.json())
+                .then( respi => {
+                    console.log(respi)
+                })
+                .catch(console.warn);
       
         }
       </script>

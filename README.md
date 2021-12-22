@@ -50,3 +50,58 @@ Ahora copiaremos las instrucciones que nos sale en la documentación de Google p
 </script>
 ````
 #
+### 4.- Ruta para manejo de autenticación de Google
+Crearemos una función en el controlador para manejar lo que recibiremos por la petición POST, en este caso el __Token__, esto lo haremos en el __Backend__ y tendremos que hacer el POST desde el __Frontend__
+#### Backend
+En `controllers/auth.controllers.js`
+* Realizaremos la función la cual recibirá el token que será mandado por el body del endpoint.
+* Si sale todo bien, se enviará una respuesta de que todo esta bien y el token.
+* No olvidar hacer la exportación de la función creada.
+````
+const googleSignIn = async(req, res = response) => {
+    const { id_token } = req.body;
+
+    res.json({
+        msg: 'Todo bien',
+        id_token
+    })
+}
+```` 
+En `routes/auth.js`
+* Realizamos la importación de la función recien creada, para su utilización.
+````
+const { login, googleSignIn } = require('../controllers/auth.controllers');
+````
+* Creamos otro POST, en este caso será especificamente para Google.
+* Verificamos que `id_token` sea recibido, en el caso que no venga, se emitira un mensaje que es requerido.
+* Posterior a la validación del campo, pasamos la función creada, para recibir el token.
+````
+router.post('/google', [
+    check('id_token', 'id_Token de google es necesario').not().isEmpty(),
+    validarCampos
+],googleSignIn);
+````
+#### Frontend
+* Recibimos el token de Google, y los almacenamos en la constante body.
+````
+const body = { id_token: response.credential }
+````
+* Invocamos el metodo de JS, Fetch para realizar una endpoint POST a la API del __Backend__.
+* Definimos el metodo POST con el tipo de dato JSON, ademas le mandamos el token que almacenamos en la constante __Body__.
+* Realizamos el primero `.then()` par recibir la respuesta de la promesa del __fetch__ y transformarlo en un __JSON__ para luego con el segundo `.then()` recibir la segunda promesa con la respuesta que dará el __JSON__ que vendra el contenido que se nos mando del __Backend__, el cual es el mensaje y el __Token__.
+* Realizamos un `.catch()` en el caso que pase un error.
+````
+fetch('http://localhost:8081/api/auth/google',{
+                method: 'POST',
+                headers: {
+                    'Content-Type':'application/json'
+                },
+                body: JSON.stringify(body)
+            })
+                .then( resp => resp.json() )
+                .then( resp => {
+                    console.log(resp)
+                })
+                .catch(console.warn);
+````
+#
