@@ -1176,6 +1176,8 @@ Ahora se utilizará la autentificación de Google, elementos utilizados
 
 * __[REST Server - Autentificación de usuario - JWT](https://github.com/Paserno/node-express-restserver-fst/blob/main/README3.md)__  _(Tercera versión anterior [V3.0.0](https://github.com/Paserno/node-express-restserver-fst/tree/v3.0.0))_
 
+* __[Google Auth Library](https://www.npmjs.com/package/google-auth-library)__ _([Guia de Google](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token))_
+
 #
 ### 1.- Generar API Key y API secret de Google
 Se creo un proyecto en Google, para generar las [APIs](https://developers.google.com/identity/gsi/web/guides/get-google-api-clientid) que se utilizarán
@@ -1272,5 +1274,62 @@ fetch('http://localhost:8081/api/auth/google',{
                     console.log(resp)
                 })
                 .catch(console.warn);
+````
+#
+### 5.- Validar Token de Google - Backend
+Una vez instalado __google-auth-library__ podemos realizar la verificación del Token
+* Se crea un archivo en los __Helpres__ llamado `helpers/google-verify.js`, la cual le pegamos la información extraida de [aquí en la parte de Node.js](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token).
+* Donde estaba el `CLIENT_ID` lo remplazamos por nuestra variable de entorno.
+* Le cambiamos el nombre de `verify()` a `googleVerify()` y le pasaremos el __Token__.
+* Creamos una constante desestructurada, donde tomaremos el `name, picture, email`.
+* Luego lo retornamos con los nombres que usaremos en la BD.
+* Finalmente realizamos la exportación de la función creada.
+````
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client( process.env.GOOGLE_CLIENT_ID );
+
+async function googleVerify( token = '' ) {
+    
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,  
+  });
+  const { name, picture, email } = ticket.getPayload();
+
+  return {
+    nombre: name, 
+    img: picture, 
+    correo: email
+  }
+}
+
+module.exports = {
+    googleVerify
+}
+````
+En `controllers/auth.controllers.js`
+* Realizamos la importación de la función.
+````
+const { googleVerify } = require("../helpers/google-verify");
+````
+* En la función `googleSignIn()` le insertamos un __Try-Catch__ en el caso que se produzca un error.
+* Del token de google se lo mandamos a la función para que extraiga el nombre, img y correo.
+* Seguimos mandamos nuestra respuesta con el mensaje y el token.
+* Manejamos un catch en el caso que no se pueda verificar el token.
+````
+    try {
+        const { nombre, img, correo } = await googleVerify( id_token );
+
+        res.json({
+            msg: 'Todo bien',
+            id_token
+        })
+    } catch (error) {
+        json.status(400).json({
+            ok: false,
+            msg: 'El Token no se pudo verificar'
+        })
+    }
 ````
 #
