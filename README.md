@@ -52,7 +52,7 @@ Ahora copiaremos las instrucciones que nos sale en la documentación de Google p
 </script>
 ````
 #
-### 4.- Ruta para manejo de autenticación de Google
+### 3.- Ruta para manejo de autenticación de Google
 Crearemos una función en el controlador para manejar lo que recibiremos por la petición POST, en este caso el __Token__, esto lo haremos en el __Backend__ y tendremos que hacer el POST desde el __Frontend__
 #### Backend
 En `controllers/auth.controllers.js`
@@ -107,7 +107,7 @@ fetch('http://localhost:8081/api/auth/google',{
                 .catch(console.warn);
 ````
 #
-### 5.- Validar Token de Google - Backend
+### 4.- Validar Token de Google - Backend
 Una vez instalado __google-auth-library__ podemos realizar la verificación del Token
 * Se crea un archivo en los __Helpres__ llamado `helpers/google-verify.js`, la cual le pegamos la información extraida de [aquí en la parte de Node.js](https://developers.google.com/identity/gsi/web/guides/verify-google-id-token).
 * Donde estaba el `CLIENT_ID` lo remplazamos por nuestra variable de entorno.
@@ -164,7 +164,7 @@ const { googleVerify } = require("../helpers/google-verify");
     }
 ````
 #
-### 6.- Crear un usuario personalizado con las credenciales de Google
+### 5.- Crear un usuario personalizado con las credenciales de Google
 Se realizaran algunas validaciones y un registro a la BD en el caso que el usuario no exista
 * En nuestra función `googleSignIn()` del controlador de `auth.controllers.js`, en el __Try__.
 * Verificamos si el correo que recibimos del __Token de Google__ ya existe.
@@ -208,7 +208,7 @@ res.json({
         })
 ````
 #
-### 7.- Logout - Google Identity - Frontend
+### 6.- Logout - Google Identity - Frontend
 En el codigo de `index.html` realizaremos un __Logout__ 
 * Vamos a la seguna promesa de nuestra pantalla y le mandamos el email hacia el __LocalStorage__, para almacenarlo.
 ````
