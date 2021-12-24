@@ -1481,3 +1481,50 @@ router.delete('/:id', (req, res) =>{
 });
 ````
 #
+### 2.- Modelo Categoría
+Creamos nuestro nuevo modelo `models/categoria.js`
+* Realizamos la importación de __Mongoose__.
+````
+const { Schema, model } = require('mongoose');
+````
+* Asignamos las diferentes propiedades del modelo (nombre, estado y usuario), el usuario es especial ya que necesitaremos la integridad referencial de quien creo la categoría.
+````
+const CategoriaSchema = Schema({
+    nombre: {
+        type: String,
+        required: [true, 'El nombre es obligatorio'],
+    },
+    estado: {
+        type: Boolean,
+        default: true,
+        required: true
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: true
+    }
+});
+````
+* Realizaremos la exportación de nuestro modelo.
+````
+module.exports = model( 'Categoria', CategoriaSchema );
+````
+Ya que tenemos muchos modelos crearemos un archivo `models/index.js` para realizar todas las importaciones
+* Realizamos todas las importaciones del modelo.
+````
+const Categoria = require('./categoria');
+const Role = require('./role');
+const Server = require('./server');
+const Usuario = require('./usuario');
+````
+* Luego hacemos la exportaciones de cada uno.
+````
+module.exports = {
+    Categoria,
+    Role,
+    Server,
+    Usuario
+}
+````
+#
