@@ -1593,3 +1593,138 @@ router.post('/', [
 ],crearCategoria);
 ````
 #
+### 4.- CRUD categoría
+Se creará el __CRUD__ de la categoría, con sus validaciones
+* Comenzando en el controlador de categoría, creamos la función de `obtenerCategorias()`, donde mostraremos todas las categorias.
+* Copiamos lo que tenemos en el controlador de usuario, mostrando el limite de 5 por defecto y viendo solo las categorías que tenga el estado de __true__.
+* Realizamos 2 promesa al mismo tiempo, mostrando la totalización de las categorías y trayendo los datos segun el limite puesto.
+* Enviamos como respuesta estos datos el total y las categorias. 
+* Realizamos la exportación de la función.
+````
+const obtenerCategorias = async(req = request, res = response) => {
+    
+    const { limite = 5, desde = 0 } = req.query;
+    const query = {estado: true};
+
+    const [total, categorias] = await Promise.all([
+        Categoria.countDocuments(query),
+        Categoria.find(query)
+            .populate('usuario', 'nombre')
+            .skip( Number(desde))
+            .limit(Number(limite))
+    ]);
+
+    res.json({
+        total,
+        categorias
+    }); 
+}
+````
+En `routes/categorias.js`
+* Realizamos la importación y lo ponemos en el GET principal, para mostrar todas las categorías.
+````
+router.get('/', obtenerCategorias);
+````
+Ahora realizaremos el Endpoit para traer una categoría por ID, para primero realizaremos una validación en `helpers/db-validators.js`
+* Ya que en varios __Endpoits__ utilizaremos la busqueda de ID, necesitamos tener un validador si existe realmente.
+* No olvidar exportar la función.
+````
+const existeCategoriaPorId = async ( id ) => {
+    const existeCategoria = await Categoria.findById( id );
+    if ( !existeCategoria) {
+        throw new Error(`El ID no existe ${id}`);
+    };
+}
+````
+En `controllers/catego.controllers.js`
+* Creamos la función `obtenerCategoria` esta sera por el ID.
+* Capturamos el parametro ID que sea enviado, y lo buscamos en la BD.
+* Ademas utilizamos un metodo de __Mongoose__ el cual es `populate` que permite hacer referencia a documentos en otras colecciones, en este caso el de usuario y buscando el nombre.
+* Luego mandamos la categoría que coinsida con la ID en la respuesta al frontend.
+````
+const obtenerCategoria = async(req = requestst, res = response) => {
+    const { id } = req.params;
+    const categoria = await Categoria.findById(id)
+                                     .populate('usuario', 'nombre');
+    res.json({
+        categoria
+    })
+}
+````
+Para que no nos muestre la version de mongo y el estado, agregaremos algo al modelo `models/categoria.js`
+* Capturamos la version y el estado, para luego mandarle todo lo demas como respuesta, de esta manera evitando enviar información adicional.
+````
+CategoriaSchema.methods.toJSON = function()  {
+    const { __v, estado,...data} = this.toObject();
+    return data;
+}
+````
+En `routes/categorias.js`
+* Aqui utilizamos una validación propia de mongo `.isMongoId()`
+* Importamos la función crada anteriormente `existeCategoriaPorId()`, esta validación personalizada para la captura de los id en __Categoria__`, posterior invocamos el validador de campos.
+* Importamos la función de buscar por id las categorías `obtenerCategoria`. 
+````
+router.get('/:id', [
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos
+],obtenerCategoria);
+````
+Ahora en __Actualizar__, vamos al controlador de categorias `controllers/catego.controllers.js`
+* Creamos la función `actualizarCategoria()` asincrona, la que requerimos el id de los parametros que se nos envie.
+* Capturamos el estado y usuario, para que estos elementos no sean cambiados.
+* El nombre lo guardamos con mayuscula y le enviamos la id de la persona del __Token__.
+* Actualizamos los datos de la categoría del id correspondiente y le enviamos los datos actualizados, ademas ponemos `{new: true}` para que nos actualize los datos que mostraremos.
+* Le enviamos los datos actualizados al frontend.
+* Exportamos nuestra función.
+````
+const actualizarCategoria = async(req, res = response) => {
+
+    const { id } = req.params;
+    const {estado, usuario, ...data}    = req.body;
+    
+    data.nombre = data.nombre.toUpperCase();
+    data.usuario = req.usuario._id;
+
+    const categoria = await Categoria.findByIdAndUpdate( id, data, {new: true} );
+
+    res.json( categoria );
+}
+````
+En `routes/categorias.js`
+* Ponemos los __Middlewares__ de validar token, que el campo nombre no este vacio, que el id que nos mande sea valido y exista en la BD.
+* Importamos la función recien crada y la usamos para actualizar la categoría.
+````
+router.put('/:id', [
+    validarJWT,
+    check('nombre','El nombre es Obligatorio').not().isEmpty(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos
+], actualizarCategoria);
+````
+Ahora realizaremos el __Borrar Categoría__, comenzando en el controlador de categoría `controllers/catego.controllers.js` 
+* Creamos la función `borrarCategoria()` asincrona, la cual requiere de los parametros el ID.
+* Buscamos esa categoría con la Id y le cambiamo el estado a __false__.
+* Enviamos al frontend el resultado.
+````
+const borrarCategoria = async(req, res = response) => {
+    const {id} = req.params;
+    
+    const categoriaBorrada = await Categoria.findByIdAndUpdate(id, {estado: false}, {new: true});
+    
+    res.json(categoriaBorrada);
+}
+````
+En `routes/categorias.js`
+* Colocamos los validadores de JWT, el rol es admin o vendedor, id es de MongoDB, si existe ese id en la BD y el validador de campos.
+* Importamos la función recien creada de `borrarCategoria`, para su uso.
+````
+router.delete('/:id', [
+    validarJWT,
+    esAdminRole,
+    check('id', 'No es un id de Mongo válido').isMongoId(),
+    check('id').custom( existeCategoriaPorId ),
+    validarCampos,
+], borrarCategoria);
+````
+#
