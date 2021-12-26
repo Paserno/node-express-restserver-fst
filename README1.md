@@ -1528,3 +1528,68 @@ module.exports = {
 }
 ````
 #
+### 3.- Crear una categoría
+Crearemos el controlador de categoría con las validaciones `controllers/catego.controllers.js`
+* Realizamos la importación de apoyo de __Express__ y del modelo de __Categoria__.
+````
+const { response } = require("express");
+const { Categoria } = require('../models');
+````
+* Creamos la función asincrona del controlador.
+* Realizamos la exportación de la función.
+````
+const crearCategoria = async(req, res = response) => {
+    ...
+} 
+
+module.exports = {
+    crearCategoria
+}
+````
+*  Capturamos el nombre que nos tendran que pasar por el __body__ y lo convertimos en mayuscula con `.toUpperCase()`.
+* Verificamos si existe en la __Base de Datos__ una categoría igual, en el caso que exista mandamos un __status 400__, que ya existe.
+* 
+````
+const nombre = req.body.nombre.toUpperCase();
+
+const categoriaDB = await Categoria.findOne({ nombre });
+
+if( categoriaDB ){
+    return res.status(400).json({
+        msg: `La categoria ${ categoriaDB.nombre }, ya existe`
+    });
+}
+````
+* Luego almacenamos el nombre de la categoría mas el ID de la persona que creo esa categoría. _(En el caso que quieran enviar la Id manualmente no la recibiremos y no será almacenada)_
+* Luego creamos una nueva categoría con los datos que almacenamos.
+* Y luego lo gruardamos en la __Base de Datos__ y lo mandamos con un __status 201__ que se creo exitosamente
+````
+const data = {
+    nombre,
+    usuario: req.usuario._id
+}
+
+const categoria = new Categoria( data );
+
+await categoria.save();
+
+res.status(201).json(categoria);
+````
+En `routes/categorias.js`
+* Nos traemos elementos __Middlewares__ como son el validar JWT y validar campos.
+* Importamos el controlador.
+````
+const { validarJWT, validarCampos } = require('../middlewares');
+
+const { crearCategoria } = require('../controllers/catego.controllers');
+````
+* Realizamos las verificaciones del endpint __POST__, en este caso validar el JWT de la persona que desee crear una nueva categoría, validar que sea enviado el nombre, y los campos.
+* Finalmente si todos las validaciones pasan, se creará una nueva categoría.
+````
+router.post('/', [
+    validarJWT,
+    check('nombre','El nombre es Obligatorio').not().isEmpty(),
+    validarCampos
+],crearCategoria);
+````
+#
