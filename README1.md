@@ -1728,3 +1728,88 @@ router.delete('/:id', [
 ], borrarCategoria);
 ````
 #
+### 5.- Modelo de producto y rutas
+Al igual como se hizo con la categoría, se replicará la creacion de los archivos, crear:
+* `routes/productos.js` Se crearán las rutas para los diferentes endpint _(Recordar hacer la referencia en la clase __Server__)_.
+* `models/producto.js` El modelo de los productos.
+* `controllers/productos.controllers.js` El controlador de producto, donde se almacenará la logica de negocio.
+Una vez creado estos archivos, comenzaremos con la referencia a la ruta en el servidor // `models/server.js`
+* Se agrega la nueva ruta `productos`.
+````
+this.paths = {
+            auth:      '/api/auth',
+            categorias: '/api/categorias',
+            productos: '/api/productos',
+            usuarios:  '/api/usuarios',
+        }
+````
+* Se agrega el paths de productos en el metodo `routes()`.
+````
+routes() {
+        this.app.use(this.paths.auth, require('../routes/auth'));
+        this.app.use(this.paths.categorias, require('../routes/categorias'));
+        this.app.use(this.paths.productos, require('../routes/productos'));
+        this.app.use(this.paths.usuarios, require('../routes/user'));
+    }
+````
+Recordamos que se creo un archivo `index.js` en los modelos, para manejar todas las importaciones y exportaciones
+* Realizamos la importación en el `index.js` de la 📂carpeta de modelos, el modelo de producto que se creara posteriormente.
+````
+const Producto = require('./producto');
+````
+* Realizamos la exportación de __Producto__.
+````
+module.exports = {
+    Categoria,
+    Producto,
+    Role,
+    Server,
+    Usuario
+}
+````
+Ahora crearemos el modelo de __Producto__
+* Copiamos el modelo de categoría que es muy similar y lo pegamos aqui, cambiado el nombre del esquma a `ProductoSchema`.
+* Podemos ver que reutilizaremos el nombre, estado y usuario.
+* Agregamos adicionalmente precio, categoria, descripcion y disponible.
+* Filtramos la versión de __MongoDB__ y el estado, para que no sean mostrados o enviados al __Frontend__.
+* Exportamos el modelo, con el nombre __Producto__. 
+````
+const { Schema, model } = require('mongoose');
+
+const ProductoSchema = Schema({
+    nombre: {
+        type: String,
+        required: [true, 'El nombre es obligatorio'],
+        unique: true
+    },
+    estado: {
+        type: Boolean,
+        default: true,
+        required: true
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: true
+    },
+    precio: {
+        type: Number,
+        default: 0
+    },
+    categoria: {
+        type: Schema.Types.ObjectId,
+        ref: 'Categoria',
+        required: true
+    },
+    descripcion: { type: String },
+    disponible : { type: Boolean, default: true },
+});
+
+ProductoSchema.methods.toJSON = function()  {
+    const { __v, estado,...data} = this.toObject();
+    return data;
+}
+
+module.exports = model( 'Producto', ProductoSchema );
+````
+#
