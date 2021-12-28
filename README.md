@@ -401,3 +401,140 @@ ProductoSchema.methods.toJSON = function()  {
 module.exports = model( 'Producto', ProductoSchema );
 ````
 #
+### 6.- CRUD de Productos Parte 1 : POST - GET - GET _(por ID)_
+Se crearán los endpoint de __Productos__, comenzando en el controlador `controllers/productos.controllers.js`
+* Realizamos las importaciones en el controlador, de __Express__ y el modelo de __Producto__.
+````
+const { response, request } = require('express');
+const { Producto } = require('../models');
+````
+* Creamos la función `crearProducto` asincrona.
+* Extraemos el estado, usuario para que no sean cambiado estos elementos en la creación del producto.
+* Verificamos si en BD existe ya el nombre que fue enviado en el body del POST, en el caso que exista mandamos un __status 400__ de que el producto ya existe.
+* Generamos la data a guardar, con el __operador spread__ `...body`, el nombre lo ponemos en mayuscula y almacenamos el ID del usuario del __TOKEN__. 
+* Creamos un nuevo producto y lo guardamos en BD.
+* Finalmente mandamos al __Frontend__ el producto y exportamos la fucnión creada.
+````
+const crearProducto = async(req, res = response) => {
+
+    const { estado, usuario, ...body } = req.body;
+    const productoDB = await Producto.findOne({ nombre: body.nombre });
+
+    if( productoDB ){
+        return res.status(400).json({
+            msg: `La producto ${ productoDB.nombre }, ya existe`
+        });
+    }
+
+    const data = {
+        ...body,
+        nombre: body.nombre.toUpperCase(),
+        usuario: req.usuario._id
+    }
+    const producto = new Producto( data );
+    
+    await producto.save();
+
+    res.status(201).json(producto);
+}
+````
+En `routes/productos.js`
+* Importamos elementos necesario como __Express__, __Express-validator__ y algunos elementos que creamos anteriormente y usaremos, como el validador de JWT, validador de campos y el validador de rol.
+* Finalmente importamos la función recien creada. _(Y las que crearemos posteriormente)_
+````
+const { Router } = require('express');
+const { check } = require('express-validator');
+
+const { validarJWT, validarCampos, esAdminRole } = require('../middlewares');
+const { crearProducto } = require('../controllers/productos.controllers');
+````
+* Utilizamos el `Router()` de __Express__.
+* En nuestro POST, ponemos la ruta por defecto, los __Middlewares__ y la función que se importo. _(Posteriormente agregaremos mas endpoits)_
+* Los Middleware que utilizaremos son la de validar el JWT, que el campo nombre no este vacío y validar los campos.
+* Hacemos la exportación del `router`.
+````
+const router = Router();
+
+router.post('/', [
+    validarJWT,
+    check('nombre','El nombre es Obligatorio').not().isEmpty(),
+    validarCampos
+],crearProducto);
+
+module.exports = router;
+````
+El __GET__ de todos los productos, ahora en `controllers/producto.controllers.js`
+* Creamos la función `obtenerProductos()` asincrona.
+* Extraemos de la `.query` el limite y desde, ademas solamente los elementos que tengan el estado en `true`.
+* Desestructuramos 2 promesas, el total de los datos que existan y el limite `.limit()` con el desde `.skip()`.
+* Enviamos al __Frontend__ el total con los productos, no olvidar exportar la función.
+````
+const obtenerProductos = async(req = request, res = response) => {
+    
+    const { limite = 5, desde = 0 } = req.query;
+    const query = {estado: true};
+
+    const [total, productos] = await Promise.all([
+        Producto.countDocuments(query),
+        Producto.find(query)
+            .populate('usuario', 'nombre')
+            .populate('categoria', 'nombre')
+            .skip( Number(desde))
+            .limit(Number(limite))
+    ]);
+
+    res.json({
+        total,
+        productos
+    }); 
+}
+````
+En `routes/produtos.js`
+* Importamos la función recien creada y la usamos en el GET para traer todos los elementos.
+````
+router.get('/', obtenerProductos);
+````
+El __GET__ por id de los productos, ahora se hará un validador en `helpers/db-validators.js`
+* Importamos el modelo de `Produto`.
+````
+const { Usuario, Categoria, Producto } = require('../models');
+````
+* Realizamos una función personalizada para validar si existe el id en BD, en el caso que no exista, se enviará el error que no existe el ID.
+* Exportamos esta función de validación.
+````
+const existeProductoPorId = async ( id ) => {
+    const existeProducto = await Producto.findById( id );
+    if ( !existeProducto) {
+        throw new Error(`El ID no existe ${id}`);
+    };
+}
+````
+Ahora en `controllers/productos.controllers.js`
+* Creamos la funcón `obtenerProducto`, este tomara el id en los parametros.
+* Para luego buscar en la BD, para luego mostrar los datos, usando `.populate` que permite hacer referencia a documentos en otras colecciones.
+* Mandamos al __Frontend__ el producto y exportamos la función.
+````
+const obtenerProducto = async(req = request, res = response) => {
+
+    const  {id}  = req.params;
+    const producto = await Producto.findById(id)
+                                     .populate('usuario', 'nombre')
+                                     .populate('categoria', 'nombre');
+
+    res.json({
+        producto
+    })
+}
+````
+En `routes/productos.js`
+* Importamos la función recien creada, para luego crear un nuevo GET que recibira el id.
+* Usamos __Middlewares__ para validar, verificamos si el id es propio de __Mongo__, si existe en la BD, Validar los campos.
+* Usamos la función recien creada.
+````
+router.get('/:id', [
+    check('id', 'No es un ID válido').isMongoId(),
+    check('id').custom( existeProductoPorId ),
+    validarCampos
+], obtenerProducto);
+````
+#
