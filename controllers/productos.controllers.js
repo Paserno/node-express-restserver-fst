@@ -57,9 +57,38 @@ const crearProducto = async(req, res = response) => {
     res.status(201).json(producto);
 }
 
+const actualizarProducto = async(req, res = response) => {
+
+    const { id } = req.params;
+    const {estado, usuario, ...data} = req.body;
+    
+     if( data.nombre ) {
+        data.nombre  = data.nombre.toUpperCase();
+    }
+    
+    data.usuario = req.usuario._id;
+
+    const producto = await Producto.findByIdAndUpdate( id, data, {new: true} );
+
+    res.json( producto );
+}
+
+// borrarProducto - estado: false
+const borrarProducto = async(req, res = response) => {
+
+    const {id} = req.params;
+    
+    const productoBorrada = await Producto.findByIdAndUpdate(id, {estado: false}, {new: true});
+    
+    res.json(productoBorrada);
+
+}
+
 
 module.exports = {
     crearProducto,
     obtenerProductos,
-    obtenerProducto
+    obtenerProducto,
+    actualizarProducto,
+    borrarProducto
 }

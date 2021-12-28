@@ -6,9 +6,11 @@ const { validarJWT, validarCampos, esAdminRole } = require('../middlewares');
 
 const { crearProducto,
         obtenerProductos,
-        obtenerProducto } = require('../controllers/productos.controllers');
+        obtenerProducto,
+        actualizarProducto,
+        borrarProducto } = require('../controllers/productos.controllers');
 
-const { existeProductoPorId } = require('../helpers/db-validators');
+const { existeProductoPorId, existeCategoriaPorId } = require('../helpers/db-validators');
 
 const router = Router();
 
@@ -27,16 +29,19 @@ router.get('/:id', [
 router.post('/', [
     validarJWT,
     check('nombre','El nombre es Obligatorio').not().isEmpty(),
+    check('categoria', 'No es un ID válido de Mongo').isMongoId(),
+    check('categoria').custom( existeCategoriaPorId ),
     validarCampos
 ],crearProducto);
 
 // Actualizar producto por id - Privado - cualquiera con token valido
 router.put('/:id', [
     validarJWT,
-    check('nombre','El nombre es Obligatorio').not().isEmpty(),
     check('id').custom( existeProductoPorId ),
+    // check('categoria', 'No es un ID válido de Mongo').isMongoId(),
+    // check('categoria').custom( existeCategoriaPorId ),
     validarCampos
-], );
+], actualizarProducto);
 
 // Borrar una producto - Admin
 router.delete('/:id', [
@@ -45,9 +50,7 @@ router.delete('/:id', [
     check('id', 'No es un id de Mongo válido').isMongoId(),
     check('id').custom( existeProductoPorId ),
     validarCampos,
-], );
-
-
+], borrarProducto);
 
 
 module.exports = router;

@@ -538,3 +538,67 @@ router.get('/:id', [
 ], obtenerProducto);
 ````
 #
+### 7.- CRUD de Productos Parte 2 : PUT - DELETE
+Continuando con los demas endpoits, nos vamos al controlador de productos.
+* Creamos la función `actualizarProducto()` asincrona.
+* Para la actualización necesitamos extraer el id del `.params`.
+* Omitir si nos mandan el estado y el id de usuario, lo demas puede ser actualizado.
+* En el caso que se nos mande el nombre, transformarlo a mayuscula y utilizar el id del token.
+* Actualizamos los datos del id del producto que nos mandaron en el `.params`.
+* Mandamos al __frontend__ el producto actualizado y no olvidar exportar la función.
+````
+const actualizarProducto = async(req, res = response) => {
+
+    const { id } = req.params;
+    const {estado, usuario, ...data} = req.body;
+    
+     if( data.nombre ) {
+        data.nombre  = data.nombre.toUpperCase();
+    }
+    
+    data.usuario = req.usuario._id;
+
+    const producto = await Producto.findByIdAndUpdate( id, data, {new: true} );
+
+    res.json( producto );
+}
+````
+En `routes/productos.js`
+* Importamos la función `actualizarProducto()`.
+* Usamos los __Middlewares__ para la validación del JWT, verificar que el id que se nos manda existe y el validador de campos.
+* Usamos la función finalmente de actualizar los productos.
+````
+router.put('/:id', [
+    validarJWT,
+    check('id').custom( existeProductoPorId ),
+    validarCampos
+], actualizarProducto);
+````
+Como ultimo endpoit el __DELETE__, vamos a `controllers/productos.controllers/js`
+* Creamos la función asincrona.
+* Extremos de los `.params` el id.
+* Acualizamos el estado del producto del id, en `false`. _(realizando así una eliminación logica)_
+* Enviamos al __Frontend__ el producto borrado, no olvidar exportar función.
+````
+const borrarProducto = async(req, res = response) => {
+    const {id} = req.params;
+    
+    const productoBorrada = await Producto.findByIdAndUpdate(id, {estado: false}, {new: true});
+    
+    res.json(productoBorrada);
+}
+```` 
+Ahora en `routes/productos.js`
+* Importamos la función recien creada `borrarProducto()`.
+* Usamos los validadores de JWT, validar el rol, validar si es un id de mongo, si existe el id en la BD y finalmente validar los campos.
+* Usamos la funcón creada para hacer la eliminación logica.
+````
+router.delete('/:id', [
+    validarJWT,
+    esAdminRole,
+    check('id', 'No es un id de Mongo válido').isMongoId(),
+    check('id').custom( existeProductoPorId ),
+    validarCampos,
+], borrarProducto);
+````
+#
