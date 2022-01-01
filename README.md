@@ -602,3 +602,63 @@ router.delete('/:id', [
 ], borrarProducto);
 ````
 #
+### 8.- Ruta para realizar Búsquedas
+Se habilitará una ruta para realizar las búsquedas hacia la Base de Dato, para esto creamos los siguientes archivos:
+* En el controlador `controllers/buscar.controllers.js`.
+* En las rutas `routes/buscar.js`.
+* Modificamos la clase de server en `models/server.js`.
+Iniciando en el controlador
+* Realizamos la importación de __Express__ para tener una asistencia de tipeo.
+````
+const { response } = require('express');
+````
+* Creamos la función buscar que se usará en el GET, recibiendo la `coleccion` y `termino` de los params. 
+````
+const buscar = ( req, res = response) => {
+    const { coleccion, termino } = req.params;
+
+    res.json({
+        coleccion,
+        termino,
+        msg: 'Buscar...'
+    })
+}
+````
+* Realizamos la exportación de la función. 
+````
+module.exports = {
+    buscar
+}
+````
+Ahora vamos a la ruta `routes/buscar.js`
+* Realizamos la importación del metodo de __Express__ `Router` y importamos lo del controlador.
+````
+const { Router } = require('express');
+const { buscar } = require('../controllers/buscar.controllers');
+````
+* Definimos la constante que usaremos el metodo de __Express__ y inicializamos el primer GET, con lo que se solicitará, en este caso la `/:coleccion` y `/:termino`.
+* Realizamos la exportación del router. 
+````
+const router = Router();
+
+router.get('/:coleccion/:termino', buscar)
+
+module.exports = router;
+````
+En `models/server.js`
+* En el atributo paths, creamos una nueva ruta. 
+````
+this.paths = {
+buscar: '/api/buscar',
+...
+}
+````
+* Esta la usamos en el metodo `routes()` de la clase __Server__, le pasamos la ruta nueva del atributo.
+````
+this.app.use(this.paths.buscar, require('../routes/buscar'));
+````
+De esta manera tenemos la ruta de la busqueda hecha, la probamos con __Postman__
+
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641001706/oqngm2l3bn9lgqyd7i3a.png" />
+
+#
