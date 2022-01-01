@@ -1966,7 +1966,7 @@ const buscarUsuarios = async( termino = '', res = response) =>{
 
     if( esMongoID ){
         const usuario = await Usuario.findById(termino);
-        res.json({
+        return res.json({
             results:  ( usuario ) ? [ usuario ] : []
         })
     }
