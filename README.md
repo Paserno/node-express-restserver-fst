@@ -662,3 +662,77 @@ De esta manera tenemos la ruta de la busqueda hecha, la probamos con __Postman__
 <img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641001706/oqngm2l3bn9lgqyd7i3a.png" />
 
 #
+### 9.- Búsquedas en Base de Datos
+En este punto, se modificará la coleccion de `buscar`, para hacer la primera busqueda hacia la base de datos, comenzando con el __Usuario__
+* Realizamos una importación de __Mongoose__ para apoyarnos, en este caso se usará para comprobar si el ID de __Mongo__ es valido.
+* La segunda importación es de los modelos, que se usaran para hacer las busquedas.
+````
+const { ObjectId } = require('mongoose').Types;
+
+const { Usuario, Categoria, Producto } = require('../models');
+```` 
+* Realizamos un arreglo de las búsquedas que se realizarán a las colecciones creadas. 
+````
+const coleccionesPermitidas = [
+    'usuarios',
+    'categorias',
+    'productos',
+    'roles'
+]
+````
+* Se realizará la primera busqueda hacia los usuarios, para esto creamos una función de `buscarUsuarios()` asincrona.
+* Utilizamos la importación de __Mongoose__ para luego hacer la validacón del id de la busqueda, con `ObjectId.isValid()`, en el caso que la id sea validad de mongo, enviará un `true`.
+* Realizamos la validación de la id, en el caso que se envié y el resultado sea `true` se realizará la busqueda en el modelo de que si existe ese elemento.
+* Se manda como respuesta al __Frontend__ un arreglo llamado `results`, en el caso que el usuario exista se mandará el usuario, en el caso que sea `null` se enviará un String vacío.
+````
+const buscarUsuarios = async( termino = '', res = response) =>{
+
+    const esMongoID = ObjectId.isValid( termino );
+
+    if( esMongoID ){
+        const usuario = await Usuario.findById(termino);
+        res.json({
+            results:  ( usuario ) ? [ usuario ] : []
+        })
+    }
+}
+````
+* Modificamos la función `buscar()` agregando una condición, en el caso que en la `coleccion` que se entregue por los parametros, no sea lo que existe en el arreglo `coleccionesPermitidas`, saldra un __status 400__ con un mensaje.
+````
+const buscar = ( req, res = response) => {
+    const { coleccion, termino } = req.params;
+
+    if( !coleccionesPermitidas.includes( coleccion ) ){
+        return res.status(400).json({
+            msg: `Las colecciones permitidas son: ${ coleccionesPermitidas }`
+        })
+    }
+    ...
+}
+````
+* Se crea un __switch__ con los diferentes casos del arrelgo y un valor por defecto, en el caso que no se mande una opción que no exista, mandando un __status 500__.
+* Invocamos la función `buscarUsuarios()` creada y le pasamos 2 parametros, `termino` y `res` 
+````
+    switch (coleccion) {
+        case 'usuarios':
+            buscarUsuarios(termino, res);
+        
+        break;
+        case 'categorias':
+        
+        break;
+        case 'productos':
+        
+        break;
+        
+        default:
+            res.status(500).json({
+                msg: 'Se olvido hacer esta búsqueda'
+            })
+    }
+````
+Aquí se ve el ejemplo en el caso que se le mande un id correcto de __Mongo__, que exista en base de datos 
+
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641017062/kxlyuzcoiu6vrof9cqcj.png" />
+
+#
