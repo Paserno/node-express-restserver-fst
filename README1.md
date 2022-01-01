@@ -2011,3 +2011,26 @@ Aquí se ve el ejemplo en el caso que se le mande un id correcto de __Mongo__, q
 <img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641017062/kxlyuzcoiu6vrof9cqcj.png" />
 
 #
+### 10.- Buscar por otros argumentos
+Seguimos en el controlador de __"Buscar"__, para obtener mas elementos por el nombre o correo que se le envíe
+* Utilizaremos una expresion regular para poder buscar el nombre del usuario independiente de como este escrito, para esto usamos `new RegExp()` que es propio de __JavaScript__, enviandole el `termino` y que sea insensible a las mayusculas.
+* Hacemos uso de `.find()` para buscar los elementos que necesitemos como respuestas, para esto ponemos una condición propia de __Moongose__ `$or` y `$and`, buscamos por el nombre o el correo y que siempre tenga el estado en `true` el registro.
+* Esto lo repetimos para el `.count()`, la cual hará la misma busqueda pero devolviendo el numero total de registros entregados.
+* Esto se lo enviamos al __Frontend__. 
+````
+ const regex = new RegExp( termino, 'i' );
+
+    const usuarios = await Usuario.find({ 
+        $or: [{ nombre: regex }, { correo: regex }],
+        $and: [{estado: true}]
+     });
+     const countUsuario = await Usuario.count({ 
+        $or: [{ nombre: regex }, { correo: regex }],
+        $and: [{estado: true}]
+     });
+
+    res.json({
+        results:  [{cantidad: countUsuario}, usuarios ]
+    });
+````
+#

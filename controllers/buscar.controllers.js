@@ -18,9 +18,23 @@ const buscarUsuarios = async( termino = '', res = response) =>{
         const usuario = await Usuario.findById(termino);
         return res.json({
             results:  ( usuario ) ? [ usuario ] : []
-        })
+        });
     }
 
+    const regex = new RegExp( termino, 'i' );
+
+    const countUsuario = await Usuario.count({ 
+        $or: [{ nombre: regex }, { correo: regex }],
+        $and: [{estado: true}]
+     });
+    const usuarios = await Usuario.find({ 
+        $or: [{ nombre: regex }, { correo: regex }],
+        $and: [{estado: true}]
+     });
+
+    res.json({
+        results:  [{cantidad: countUsuario}, usuarios ]
+    });
 
 }
 
