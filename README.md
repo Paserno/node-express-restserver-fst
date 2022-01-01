@@ -759,3 +759,74 @@ Seguimos en el controlador de __"Buscar"__, para obtener mas elementos por el no
     });
 ````
 #
+### 11.- Buscar en otras colecciones
+Ahora se realizará la búsqueda de la colección de __Categoría__ y __Producto__
+* Se crea la nueva función `buscarCategorias()` asincrona, recibiremos los mismos parametros que la función anterior, `termino` y `res`.
+* En el caso que se mande una ID realizamos la validación de si la Id es de __Mongo__, en el caso que sea así se buscará por id en las categorías, y se manda al __Frontend__ la categoría encontrada, en el caso que no, se envia un arreglo vacío.
+* Usando una expresión regular que acepta mayusculas, se buscará el nombre en la __Categoría__ que este con estado en `true`.
+* Se enviá el resultado de la categoría al __Frontend__.
+````
+const buscarCategorias = async (termino = '', res = response) => {
+
+    const esMongoID = ObjectId.isValid(termino); 
+
+    if (esMongoID) {
+        const categoria = await Categoria.findById(termino)
+            .populate('usuario', 'nombre');
+        return res.json({
+            results: (categoria) ? [categoria] : []
+        });
+    }
+    const regex = new RegExp(termino, 'i');
+
+    const categorias = await Categoria.find({ nombre: regex, estado: true })
+        .populate('usuario', 'nombre');
+
+    res.json({
+        results: categorias
+    });
+}
+```` 
+Al igual que en la busqueda de categoría así mismo se realizará en el producto
+* Creando la función, verificar id de __Mongo__, buscar la id por id en los productos.
+* En el caso que no se mande la id se buscará por el nombre del producto.
+* Ademas se contará el numero de búsquedas encontradas.
+* Enviando la respuesta al __Frontend__.
+````
+const buscarProductos = async (termino = '', res = response) => {
+
+    const esMongoID = ObjectId.isValid(termino); 
+
+    if (esMongoID) {
+        const producto = await Producto.findById(termino)
+            .populate('usuario', 'nombre')
+            .populate('categoria', 'nombre');
+        return res.json({
+            results: (producto) ? [producto] : []
+        });
+    }
+    const regex = new RegExp(termino, 'i');
+
+    const productos = await Producto.find({ nombre: regex, estado: true })
+        .populate('usuario', 'nombre')
+        .populate('categoria', 'nombre');
+   
+    
+    const countProductos = await Producto.count({ nombre: regex, estado: true });
+
+    res.json({
+        results: [{ cantidad: countProductos }, productos]
+    });
+}
+````
+* En el __switch__ se agregan las 2 nuevas funciónes creadas.
+````
+case 'categorias':
+        buscarCategorias(termino, res);
+    break;
+
+case 'productos':
+        buscarProductos(termino, res);
+    break;
+````
+#
