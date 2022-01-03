@@ -2249,3 +2249,82 @@ if( !extensionesValidas.includes(extension) ){
 }
 ````
 #
+### 5.- Helper - SubirArchivo 
+En toda la seccion se ha realizado la subida de archivo en el controlador, ya que proximamente necesitaremos subir archivos para el usuario y producto, se necesitará replicar el codigo para subir archivos, para esto es necesario centralizar ese codigo de subida y usarlo desde los diferentes controladores
+
+Para esto creamos un nuevo helper:
+* Se crea un `helpers/index.js` donde realizaremos la importación y exportacion de todos los helpers.
+* Se crea `helpers/subir-archivo.js` para manejar la subida de archivos.
+
+En `helpers/index.js`
+* Realizamos la importación de todos los archivo de la carpeta __helpers__.
+````
+const dbValidators = require('./db-validators');
+const generarJWT = require('./generar-jwt');
+const googleVerify = require('./google-verify');
+const subirArchivo = require('./subir-archivo');
+````
+* Realizamos la exportación de todos los archivos de la carpeta __helpers__
+````
+module.exports = {
+    ...dbValidators,
+    ...generarJWT,
+    ...googleVerify,
+    ...subirArchivo
+}
+````
+En `helpers/subir-archivo.js`
+* Extreameos la importación del `path` y `uuid` del controlador de `uploads` y lo usamos en el helper nuevo.
+````
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
+````
+* Extraemos todo el codigo de __subir archivo__ del controlador de `uploads`.
+* Creamos nuestra nueva función `subirArchivo()` que le pasaremos los parametros que necesitaremos, el `files` que es el archivo nos envian, `extensionesValidas` que le agregamos un arreglo por defecto de imagenes y `carpeta` en el caso que lo querramos almacenar en una carpeta adicional.
+* Retornamos una nueva promesa, donde encerraremos todo el codgio que se extrajo del controlador _(para la subida de archivos)_.  
+````
+const subirArchivo = ( files, extensionesValidas = ['png', 'jpg', 'gif', 'jpeg'], carpeta = '' ) => {
+
+    return new Promise((resolve, reject) => {
+
+      ...
+    });
+
+}
+````
+* Las primeras 3 lineas las dejamos igual, es para extraer la extensión.
+* En la validación se remplaza el `res.status(400).json()` por un `reject()` con el mismo mensaje.
+* Las siguientes lineas las dejamos igual hasta llegar al `if(err)`, en vez de mandar un `res.status(500).json()` enviamos un `reject()` con el error.
+* Y al final en vez de un `res.json()` con el mensaje que se subio el archivo, se envia un `resolve()` con el nombre del archivo y su extensión, a diferencia de antes que se enviaba la dirección completa de donde se almacenaba, pero no es necesario ya que al cliente no puede acceder a esa dirección del servidor.
+````
+const { archivo } = files;
+const nombreCortado = archivo.name.split('.');
+const extension = nombreCortado[nombreCortado.length - 1];
+
+
+if (!extensionesValidas.includes(extension)) {
+    return reject(`La extensión ${extension} no es permitida ${extensionesValidas}`);
+}
+
+
+const nombreTemp = uuidv4() + '.' + extension;
+const uploadPath = path.join(__dirname, '../uploads/', carpeta, nombreTemp);
+
+archivo.mv(uploadPath, (err) => {
+    if (err) {
+        reject ( err );
+    }
+
+    resolve( nombreTemp );
+});
+````
+En `controllers/uploads.controllers.js`
+* Dejamos la validación de que si viene un archivo o no.
+* Luego la función la hacemos asincrona, creamos una constante `nombre` y despues de importar la función de `subirArchivo()` la utilizamos con el `await` y le asignamos `req.files`.
+* Luego mandamos al __Frontend__ la constante creada. 
+```` 
+    const nombre = await subirArchivo( req.files )
+    
+    res.json({ nombre })
+````
+#
