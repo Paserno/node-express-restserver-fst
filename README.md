@@ -119,4 +119,25 @@ const { archivo } = req.files;
     });
 ````
 #
+### 3.- Validar la Extensión
+Para realizar este punto, dejamos como comentario la subida de archivo, para realizar la __validacion de la extensiones__. En el controlador de `uploads`
+* Agregamos en la función `cargarArchivo()` la validación de las extensiones.
+* Para esto buscamos el nombre del archivo y lo separamos por el __Punto " . "__.
+* Luego cremos una constante `extension` y le asignamos la ultima posición de `nombreCortado`.
+````
+const { archivo } = req.files;
+const nombreCortado = archivo.name.split('.');
+const extension = nombreCortado[ nombreCortado.length - 1 ];
+````
+* Luego realizamos la validación de las extensiones, como primer paso colocando todas las extensiones que acetaremos en un arreglo.
+* Hacemos la validación de que si no incluye la variable `extension` una de las extensiones permitidas que cuenta el arreglo `extensionesValidas`, se mandará un error al __Frontend__ con un __status 400__, en el caso que la incluya se saltara la validación.
+````
+const extensionesValidas = ['png', 'jpg', 'gif', 'jpeg'];
 
+if( !extensionesValidas.includes(extension) ){
+  return res.status(400).json({
+    msg: `La extensión ${ extension } no es permitida, ${ extensionesValidas }`
+  });
+}
+````
+#
