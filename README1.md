@@ -2177,3 +2177,50 @@ this.paths = {
 this.app.use(this.paths.uploads, require('../routes/uploads'));
 ````
 #
+### 2.- Subir Archivo
+Instalaremos el paquete __Express-fileupload__ para subir archivos, este paquete simplificará a la hora de subir archivos en nuestro __Rest Server__, una vez instalado se harán las configuraciones
+
+Primero configuramos el __Servidor__ `models/server.js`
+* Importamos __Express-fileupload__ que recien se instalo.
+````
+const fileUpload = require('express-fileupload');
+````
+* Realizamos uso del __[Using useTempFile Options](https://www.npmjs.com/package/express-fileupload)__ que se encuentra en la documentación, esto lo colocamos como un __Middleware__ en nuestra funcion llamada `middlewares()`, esto nos permitirá manejar la carga de archivos.
+````
+this.app.use( fileUpload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/'
+}));
+````
+Ahora en el controlador de `controllers/uploads.controllers.js`
+* Se realizará la importación del `path` para proximamente usarlo al momento de guardar archivos en la aplicación de __Node__.
+````
+const path = require('path');
+````
+Utilizaremos el codigo de ejemplo de __Express-fileupload__, para utilizarlo _(modificandolo a nuestra necesidad)_
+* El codigo lo sacamos del __[Github de Express-fileupload](https://github.com/richardgirges/express-fileupload/blob/master/example/server.js)__, se utilizará lo del interior del __POST__ y lo pegamos en nuestra función __cargarArchivo__.
+* Extraemos la validación, esta validación es para verificar de si viene un archivo, y le agregamos el `!req.files.archivo` para validar que venga con nombre, en el caso que se cumpla una de las condiciones, saltará un __status 400__ con su mensaje.
+````
+if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+      res.status(400).json({msg: 'No hay archivos que subir'});
+      return;
+    }
+````
+* Creamos una constante, donde desestructuramos `archivo` y le enviamos la `request` del archivo.
+* Aquí hacemos uso de la importación del __path__, donde se almacenará el archivo, creamos la carpeta `uploads/` en la raíz del proyecto, y usamos el `path.join()` para poder almacenar en la raíz del proyecto en una carpeta creada llamada `../uploads/` y almacenarla con su nombre _(Con el nombre del archivo)_.
+* En el caso que exista un error se mandará un __status 500__ al __Frontend__ con el error.
+* En el caso que todo sea exitoso, se enviará un mensjae al __Frontend__ diciendo que se almaceno el archivo y en donde. _(En este caso en que parte del servidor o computador)_
+````
+const { archivo } = req.files;
+  
+    const uploadPath = path.join( __dirname, '../uploads/', archivo.name);
+  
+    archivo.mv(uploadPath, (err) => {
+      if (err) {
+         return res.status(500).json({ err });
+      }
+  
+      res.json({ msg: 'El archivo se subio a ' + uploadPath });
+    });
+````
+#
