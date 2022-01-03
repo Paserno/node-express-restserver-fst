@@ -2118,6 +2118,9 @@ Se trabajará con la __Carga de Archivos__ realizando un endpoint que reciba cua
 
 * __[REST Server - Categorías y Productos](https://github.com/Paserno/node-express-restserver-fst/blob/main/README5.md)__  _(Quinta versión anterior [V5.0.0](https://github.com/Paserno/node-express-restserver-fst/tree/v5.0.0))_
 
+* __[Express-fileupload](https://www.npmjs.com/package/express-fileupload)__
+
+* __[uuid](https://www.npmjs.com/package/uuid)__
 #
 ### 1.- Preparando RestServer para Carga de Archivo
 Para el inicio se tendran que crear algunos archivos, esto son los siguientes:

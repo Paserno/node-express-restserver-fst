@@ -13,6 +13,8 @@ Se trabajará con la __Carga de Archivos__ realizando un endpoint que reciba cua
 
 * __[Express-fileupload](https://www.npmjs.com/package/express-fileupload)__
 
+* __[uuid](https://www.npmjs.com/package/uuid)__
+
 #
 ### 1.- Preparando RestServer para Carga de Archivo
 Para el inicio se tendran que crear algunos archivos, esto son los siguientes:
@@ -140,4 +142,30 @@ if( !extensionesValidas.includes(extension) ){
   });
 }
 ````
+#
+### 4.- Ubicar y Cambiar Nombre de los Archivos
+En este punto se __Instalo uuid__ para crear un ID como un valor unico aleatorio, de esta manera nombrar los archivos. Esto se utiliza en el controlador de `uploads`
+* Se realiza la importación de __uuid__.
+````
+const { v4: uuidv4 } = require('uuid');
+```` 
+* Eliminamos lo que teniamos `res.json(extension);` y descomentamos el codigo anterir para subir archivos.
+* Creamos la constante `nombreTemp` y le asginamos el `uuidv4()`, ademas del punto y la extenisón que tenía el archivo.
+* Extraemos el `archivo.name` y lo remplazamos por la constante creada `nombreTemp` para almacenarlo con ese nombre _(Que tendria la __uuid__)_ y lo demas queda igual.
+````
+const nombreTemp = uuidv4() + '.' + extension;
+const uploadPath = path.join( __dirname, '../uploads/', nombreTemp);
+
+archivo.mv(uploadPath, (err) => {
+  if (err) {
+      return res.status(500).json({ err });
+  }
+
+res.json({ msg: 'El archivo se subio a ' + uploadPath });
+});
+````
+Aquí un ejemplo de como queda el nombre del archivo al momento de su almacenamiento, con el __uuid__
+
+<img align="center" width="1000" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641249337/j3tl7makps9jfiiinfwj.png" />
+
 #
