@@ -2358,3 +2358,43 @@ try {
 const nombre = await subirArchivo( req.files, undefined, 'imgs' );
 ````
 #
+### 7.- Ruta para Actualizar Imágenes de Usuario y Producto
+A continuación se creará el endpoit para validar las rutas para las imagenes
+En `helpers/db-validators.js`
+* Crearemos la validación de las colecciones permitidas, con una función `coleccionesPermitidas()` que recibira como parametros la `coleccion` que vendrá del __Frontend__ y la `colecciones` como un arreglo que se perimitiran, esta ya estarán definidas en el endpoint.
+* En el caso que no se incluya se enviará un error.
+* No olvidar exportar la función.
+````
+const coleccionesPermitidas = ( coleccion = '', colecciones = []) => {
+
+    const incluida = colecciones.includes( coleccion );
+    if( !incluida ){
+        throw new Error(`La colección ${ coleccion } no es permitida: ${ colecciones } `);
+    }
+    return true;
+}
+````
+En `controllers/uploads.controllers.js`
+* Crearemos la función de actualizar asincrona.
+* Que simplemente recibira el id y la colección para luego enviarla al __Frontend__.
+````
+const actualizarImagen = async(req, res = response) => {
+
+  const { id, coleccion } = req.params;
+
+  res.json({id, coleccion})
+}
+````
+En `routes/uploads.js`
+* Creamos el nuevo endpoit __PUT__ para la actualización, que recibirá la colección y el id.
+* Validar si el id es de __MongoDB__.
+* Validar la colección, de una manera personalizada usando la función crada en `helpers/db-validators.js`, viendo si lo que se recibe por el __Frontend__ es una coleccion valida, segun lo que se tenga en el arreglo, en el caso que no se enviará un error _(importamos `coleccionesPermitidas`)_.
+* Agregamos el `validarCampos` y usamos la función del controlador de `uploads`.
+````
+router.put('/:coleccion/:id', [
+    check('id', 'El id debe ser de Mongo').isMongoId(),
+    check('coleccion').custom( c => coleccionesPermitidas( c, ['usuarios', 'productos'] ) ),
+    validarCampos
+], actualizarImagen);
+````
+#
