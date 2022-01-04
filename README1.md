@@ -2398,3 +2398,66 @@ router.put('/:coleccion/:id', [
 ], actualizarImagen);
 ````
 #
+### 8.- Actualizar Imagen de Usuario y Producto (En BD)
+Se actualizará el modelo de __Producto__ para almacenar imagenes y modificar el controlador de __Actualizar__ imagenes, tanto de los Usuarios como Productos
+
+En `models/producto.js`
+* Agregamos en el modelo el string que alacenará la imagen en BD.
+````
+img: { type: String },
+````
+En `controllers/uploads.controllers.js`
+* Importamos los modelos de __Usuarios__ y __Productos__.
+````
+const { Usuario, Producto } = require('../models');
+````
+* En la función `actualizarImagen()` agregamos el validar si existe algun archivo.
+````
+if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+    res.status(400).json({ msg: 'No hay archivos subido' });
+    return;
+  }
+````
+* Creamos una variable llamada `modelo` que utilizaremos.
+* Creamos un __switch__ con 2 casos _(usuarios y productos)_ y 1 por defecto.
+* En el `case` de usuarios se le asigna a la variable `modelo` la busqueda del id de usuario, en el caso que no se encuentre un usario con ese id, se enviará un error con __status 400__ al __Frontend__ _(muy similar en productos)_.
+* En el caso que se mande un caso que no se tenga, saltara el `default` se enviará un mensaje con __status 500__.
+.
+````
+let modelo;
+
+switch (coleccion) {
+    case 'usuarios':
+      modelo = await Usuario.findById(id);
+      if ( !modelo ) {
+        return res.status(400).json({
+          msg: `No existe un usuario con el id ${id}`
+        });
+      }
+    break;
+
+    case 'productos':
+      modelo = await Producto.findById(id);
+      if ( !modelo ) {
+        return res.status(400).json({
+          msg: `No existe un producto con el id ${id}`
+        });
+      }
+
+    break;
+
+    default:
+      return res.status(500).json({ msg: 'Se olvido Validar Esto' });
+  }
+````
+* Usamos la función de guardar archivo en la aplicación, y adicionalmente lo guardamos en Base de Datos.
+* Finalmente enviamos el modelo actualizado.
+````
+const nombre = await subirArchivo( req.files, undefined, coleccion );
+  modelo.img = nombre; 
+
+  await modelo.save();
+
+  res.json(modelo);
+````
+#
