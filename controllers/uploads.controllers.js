@@ -9,10 +9,17 @@ const cargarArchivo = async(req, res = response) => {
       return;
     }
     
-    // Formato de Imagenes 
-    const nombre = await subirArchivo( req.files )
-    
-    res.json({ nombre })
+    try {
+      // Formato de Imagenes  // txt, md // nombre de la carpeta
+      // const nombre = await subirArchivo( req.files, ['txt', 'md'], 'textos' );
+      const nombre = await subirArchivo( req.files, undefined, 'imgs' );
+      res.json({ nombre });
+      
+      
+    } catch (msg) {
+      res.status(400).json({msg})
+    }
+
 }
 
 module.exports = {

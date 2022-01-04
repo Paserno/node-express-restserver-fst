@@ -2328,3 +2328,33 @@ En `controllers/uploads.controllers.js`
     res.json({ nombre })
 ````
 #
+### 6.- Crear Carpetas de Destino
+Para crear carpetas se usara una configuración de __Express-fileupload__ llamada __[createParentPath](https://www.npmjs.com/package/express-fileupload)__, esta por defecto tiene un valor `false` hay que pasarlo a `true`
+
+En `models/server.js`
+* Nos vamos al metodo `middlewares()` para agregar `createParentPath` con un valor en `true`, de esta manera permitiendo crear carpetas nuevas en el directorio.
+````
+this.app.use( fileUpload({
+            useTempFiles: true,
+            tempFileDir: '/tmp/',
+            createParentPath: true
+        }));
+````
+En `controllers/uploads.controllers.js`
+* Encerramos en un __Try-Catch__ para controlar los errores, en el caso que no se envié un formato deseado por ejemplo.
+* En este ejemplo queremos que solo se admitan formatos `.txt` y `.md`, ademas que cree una carpeta llamada `textos`, gracias a la configuración anterior se podrá crear.
+* En el __catch__ recibiremos el error que sea mandado del helper `subirArchivo`.
+````
+try {
+      const nombre = await subirArchivo( req.files, ['txt', 'md'], 'textos' );
+      res.json({ nombre });
+      
+    } catch (msg) {
+      res.status(400).json({msg})
+    }
+````
+* Finalmento lo dejamos por defecto como lo teniamos antes, aceptando imagenes `undefined` y creando una carpeta llamada `imgs`.
+````
+const nombre = await subirArchivo( req.files, undefined, 'imgs' );
+````
+#
