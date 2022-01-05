@@ -2505,3 +2505,26 @@ module.exports = {
 En `controllers/uploads.controllers.js`
 * Finalmente se elimina el codigo repetitivo que se tenía.
 #
+### 10.- Borrar archivos del servidor 
+Este borrado es cuando se intenta actualizar la imagen del usuario o producto, para que cada registro tenga 1 imagen asociada, ya que en este punto se puede actualizar la imagen, pero todas las imagenes quedan almacenadas
+
+En `controllers/uploads.controllers.js`
+* Se realizá la importación del path propia de __Node.js__ para ir a la carpeta donde se encuentra el archivo de la imagen y proximamente borrarla.
+* Importacion de fs _(file system)_ para borrar la imagen.
+````
+const path = require('path');
+const fs = require('fs');
+````
+* En la función `actualizarImagen()` despues del __switch__, realizamos una validación si el registro en BD tiene una imagen asignada. 
+* En el caso que se tenga una imagen en el registro, se buscará en la 📂carpeta `uploads/`  el registro con ese nombre _(El nombre es la uuid asignada con su extensión)_, en el caso que sea `true` esto quiere decir que existe el registro, entonces se eliminará el registro con `fs.unlinkSync()`.  
+````
+  if( modelo.img ){
+    const pathImagen = path.join( __dirname, '../uploads', coleccion, modelo.img );
+
+    if( fs.existsSync( pathImagen ) ){
+      fs.unlinkSync( pathImagen ); 
+    }
+  }
+````
+Una vez eliminado la imagen que existia en la 📂carpeta `uploads/` se guardará otra imagen remplazando la imagen antigua.
+#
