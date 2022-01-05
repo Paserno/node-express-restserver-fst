@@ -381,3 +381,47 @@ const nombre = await subirArchivo( req.files, undefined, coleccion );
   res.json(modelo);
 ````
 #
+### 9.- Agregar un Middleware de Subir Archivo (Optimizar Codigo)
+En el caso que no se suba un archivo lo que hicimos es copiar una validación que habiamos hecho en el controlador especificamente en la función `cargarArchivo()`, para evitar tener codigo repetido se optimizará y se creará un __Middleware__ exclusivo que se utilizará en los diferentes endpoint de `uploads`
+
+Se hará lo siguiente:
+* Crear un archivo nuevo llamado `middlewares/validar-archivo`.
+* Se traspasara la importación al archivo `middlewares/index.js` para realizar todas las exportaciónes.
+* Eliminar el codigo repetido en la función `cargarArchivo()` y `actualizarImagen()` del controlador de `uploads`.
+En `middlewares/validar-archivo.js`
+* Realizamos la importación de `response` para apoyarnos con el typado.
+* Creamos la función `validarArchivoSubido()` _(Middleware)_.
+* Extraemos el codigo repetido que se tenía en el controlador de `uploads`.
+* Exportamos la función.
+````
+const { response } = require('express');
+
+const validarArchivoSubido = (req, res = response, next) => {
+
+    if (!req.files || Object.keys(req.files).length === 0 || !req.files.archivo) {
+        return res.status(400).json({ 
+            msg: 'No hay archivos subido - validarArchivoSubido'
+        });
+    }
+    next();
+}
+
+module.exports = {
+    validarArchivoSubido
+}
+````
+En `middleware/index.js`
+* Agregamos la importación de `validarArchivoSubido`.
+````
+const validarArchivoSubido   = require('../middlewares/validar-archivo');
+````
+* Realizamos la exportación de `validarArchivoSubido`
+````
+module.exports = {
+    ...
+    ...validarArchivoSubido,
+}
+````
+En `controllers/uploads.controllers.js`
+* Finalmente se elimina el codigo repetitivo que se tenía.
+#
