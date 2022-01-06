@@ -2528,3 +2528,63 @@ const fs = require('fs');
 ````
 Una vez eliminado la imagen que existia en la 📂carpeta `uploads/` se guardará otra imagen remplazando la imagen antigua.
 #
+### 11.- Servicio de mostrar imagen - GET
+En este punto se crea el endpoint para obtener la imagen del servidor. 
+
+En `controllers/loads.controllers.js`
+* Se crea la función `mostrarImagen()`.
+````
+const mostrarImagen = async(req, res = response) => {
+...
+}
+````
+* Reutilizamos el switch de la función `actualizarImagen()` _([8.- Actualizar Imagen de Usuario y Producto (En BD)]())_.
+````
+  const { id, coleccion } = req.params;
+
+  let modelo;
+
+  switch (coleccion) {
+    case 'usuarios':
+      modelo = await Usuario.findById(id);
+      if ( !modelo ) {
+        return res.status(400).json({
+          msg: `No existe un usuario con el id ${id}`
+        });
+      }
+      break;
+
+    case 'productos':
+      modelo = await Producto.findById(id);
+      if ( !modelo ) {
+        return res.status(400).json({
+          msg: `No existe un producto con el id ${id}`
+        });
+      }
+      break;
+
+    default:
+      return res.status(500).json({ msg: 'Se olvido Validar Esto' });
+  }
+````
+* A comparación de la función `actualizarImagen()` aquí no se eliminará el archivo, si no mostrar.
+* Creamos el __path__ `pathImagen`, verificamos si existe y luego lo retornamos como respuesta al __Frontend__ con `res.sendFile()`.
+* Descargamos una imagen por defecto que almacenaremos en la carpeta `assets/` que se creo, en el caso que el registro no tenga una imagen, se enviará una imagen por defecto _(no-image.jpg)_.
+````
+  if( modelo.img ){
+
+    const pathImagen = path.join( __dirname, '../uploads', coleccion, modelo.img );
+    if( fs.existsSync( pathImagen ) ){
+      return res.sendFile( pathImagen );
+    }
+  }
+
+
+  const pathImagen = path.join( __dirname, '../assets/no-image.jpg');
+  res.sendFile(pathImagen);
+````
+En el ejemplo se muestra la imagen por defecto que mostrarán los registros que no tengan imagenes.
+
+<img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641432827/ig2o7atzywpcegpamnwh.png" />
+
+#
