@@ -2121,6 +2121,8 @@ Se trabajará con la __Carga de Archivos__ realizando un endpoint que reciba cua
 * __[Express-fileupload](https://www.npmjs.com/package/express-fileupload)__
 
 * __[uuid](https://www.npmjs.com/package/uuid)__
+
+* __[Cloudinary npm](https://www.npmjs.com/package/cloudinary)__ _([Cloudinary](https://cloudinary.com))_
 #
 ### 1.- Preparando RestServer para Carga de Archivo
 Para el inicio se tendran que crear algunos archivos, esto son los siguientes:
@@ -2587,4 +2589,42 @@ En el ejemplo se muestra la imagen por defecto que mostrarán los registros que 
 
 <img align="center" width="500" src="https://res.cloudinary.com/dptnoipyc/image/upload/v1641432827/ig2o7atzywpcegpamnwh.png" />
 
+#
+### 12.- Carga de Imágenes a Cloudinary 
+Primero hacemos la instalación del paquete de __Cloudinary__, para luego crear o iniciar una cuenta en la pagina oficial de __[Cloudinary](https://cloudinary.com)__, una vez hecho extraeremos la variable de entorno que nos ofrece y la colocaremos en nuestra aplicación
+
+En `.env`
+* En nuestras archivo donde manejamos las variables de entorno pegamos lo que nos ofrecio __Cloudinary__. 
+````
+CLOUDINARY_URL=XXXXXXXXXXXXXXXXXXXX
+````
+Luego clonamos la función `actualizarImagen()` del controlador `uplodas`, ya que hará lo mismo, pero con la diferencia que se almacenarán las imágenes en __Cloudinary__
+* Como ya tenemos instalado el paquete de __Cloudinary__, lo importamos y le mandamos la configuración con la variable de entorno creada. _(Esto en el controlador de `uploads`)_ 
+````
+const cloudinary = require('cloudinary').v2
+cloudinary.config( process.env.CLOUDINARY_URL );
+````
+* Una vez clonada la función, actualizamos el nombre a `actualizarImagenCloudinary()`, modificando el codigo que esta abajo del `switch` y borramos el interior de la validación que tenemos de limpiar la imagen previa, para proximamente borrar la imágen en __Cloudinary__.
+* Extraemos el Path de `req.files.archivo`.
+* Con `cloudinary.uploader.upload()` realizamos la carga del archivo y le pasamos el Path como parametro, esto es una promesa por eso le agregamos el await y de esta respuesta solo necesitaremos el `secure_url`.
+* Esto se lo asignamos al modelo de la Base de Datos y lo guardamos en ella, para luego mandarlo como respuesta al __Frontend__.
+* No olvidar exportar nuestra nueva función `actualizarImagenCloudinary()`.
+````
+const { tempFilePath } = req.files.archivo
+const { secure_url } = await cloudinary.uploader.upload( tempFilePath );
+modelo.img = secure_url; 
+
+await modelo.save();
+
+res.json(modelo);
+````
+En `routes/uploads.js`
+* Importamos `actualizarImagenCloudinary`.
+* En el endpint remplazamos la función que usaremos, por la nueva que creamos, de esta manera usaremos __Cloudinary__ en vez de la función `actualizarImagen()` que almacena localmente las imagenes.
+````
+router.put('/:coleccion/:id', [
+...
+], actualizarImagenCloudinary);
+// ], actualizarImagen);
+````
 #
