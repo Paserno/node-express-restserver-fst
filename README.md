@@ -460,7 +460,7 @@ const mostrarImagen = async(req, res = response) => {
 ...
 }
 ````
-* Reutilizamos el switch de la función `actualizarImagen()` _([8.- Actualizar Imagen de Usuario y Producto (En BD)](https://github.com/Paserno/node-express-restserver-fst#8—actualizar-imagen-de-usuario-y-producto—-en-bd))_.
+* Reutilizamos el switch de la función `actualizarImagen()` _([8.- Actualizar Imagen de Usuario y Producto (En BD)](https://github.com/Paserno/node-express-restserver-fst#8--actualizar-imagen-de-usuario-y-producto---en-bd))_.
 ````
   const { id, coleccion } = req.params;
 
