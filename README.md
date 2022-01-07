@@ -320,7 +320,7 @@ router.put('/:coleccion/:id', [
 ], actualizarImagen);
 ````
 #
-### 8.- Actualizar Imagen de Usuario y Producto (En BD)
+### 8.- Actualizar Imagen de Usuario y Producto - En BD
 Se actualizará el modelo de __Producto__ para almacenar imagenes y modificar el controlador de __Actualizar__ imagenes, tanto de los Usuarios como Productos
 
 En `models/producto.js`
@@ -460,7 +460,7 @@ const mostrarImagen = async(req, res = response) => {
 ...
 }
 ````
-* Reutilizamos el switch de la función `actualizarImagen()` _([8.- Actualizar Imagen de Usuario y Producto (En BD)]())_.
+* Reutilizamos el switch de la función `actualizarImagen()` _([8.- Actualizar Imagen de Usuario y Producto (En BD)](https://github.com/Paserno/node-express-restserver-fst#8—actualizar-imagen-de-usuario-y-producto—-en-bd))_.
 ````
   const { id, coleccion } = req.params;
 
