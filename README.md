@@ -548,3 +548,41 @@ router.put('/:coleccion/:id', [
 // ], actualizarImagen);
 ````
 #
+### 13.- Borrar imágen de Cloudinary
+Ahora al momento de hacer la actualización es necesario remplazar la imagen y se hace borrando la anterior para subir una nueva, para esto se modificará la validación que dejamos en blanco
+
+En `controllers/uploads.controllers.js`
+* En la función `actualizarImagenCloudinary()` vamos a la validación y verificamos si existe datos de la imágen en el registro.
+* Como ahora guardamos el URL de Cloudinary, necesitamos extraer el nombre del registro, para esto separamos el dato de `modelo.img` por el slash `/`.
+* Para luego mandar la ultima posición, esta vendra con la extensión y hacemos una desestructuración extrayendo el nombre.
+* Luego usamos `cloudinary.uploader.destroy()` para eliminar el registro que esta ubicado en la carpeta `node-cafe/${coleccion}` con el nombre que le enviaremos. 
+````
+if( modelo.img ){
+  const nombreArr = modelo.img.split('/');
+  const nombre    = nombreArr[ nombreArr.length - 1];
+  const [ public_id ]      = nombre.split('.'); 
+  cloudinary.uploader.destroy( `node-cafe/${coleccion}/${public_id}` );
+}
+````
+Cremos una nueva función llamada `mostrarImagenCloudinary()` clonada de `mostrarImagen` que esta solo muestra archivos locales y necesitamos una nueva que muestre lo que este en __Cloudianry__
+* Una vez clonada nos vamos a la validación despues del `switch` para realizr una nueva validación.
+* Esta vez enviaremos el URL que almacenamos en el `modelo.img` para enviarlo al __Frontend__.
+* Exportamos nuestra nueva función `mostrarImagenCloudinary`.
+````
+if( modelo.img ){
+
+    return res.json({
+      img: modelo.img
+    });
+  }
+````
+En `routes/uploads.js`
+* Importamos la nueva función.
+* Remplazamos por la función nueva, esta vez para mandar el URL.
+````
+router.get('/:coleccion/:id', [
+  ...
+], mostrarImagenCloudinary);
+// ], mostrarImagen)
+````
+#

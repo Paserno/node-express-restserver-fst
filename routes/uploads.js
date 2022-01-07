@@ -5,7 +5,8 @@ const { validarCampos, validarArchivoSubido } = require('../middlewares');
 const { cargarArchivo,
         actualizarImagen,
         mostrarImagen,
-        actualizarImagenCloudinary } = require('../controllers/uploads.controllers');
+        actualizarImagenCloudinary,
+        mostrarImagenCloudinary } = require('../controllers/uploads.controllers');
 const { coleccionesPermitidas } = require('../helpers');
 
 
@@ -25,6 +26,7 @@ router.get('/:coleccion/:id', [
     check('id', 'El id debe ser de Mongo').isMongoId(),
     check('coleccion').custom( c => coleccionesPermitidas( c, ['usuarios', 'productos'] ) ),
     validarCampos
-], mostrarImagen)
+], mostrarImagenCloudinary);
+// ], mostrarImagen)
 
 module.exports = router;
