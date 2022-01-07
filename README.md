@@ -3,21 +3,22 @@
 > Releases [Descargables](https://github.com/Paserno/node-express-restserver-fst/releases)
 # Contenido
 ## 1. REST Server con Node.js y Express 
-> [Cascaron](https://github.com/Paserno/node-express-restserver-fst)
+> [Cascaron](https://github.com/Paserno/node-express-restserver-fst#rest-server-con-nodejs-y-express)
 
 ## 2. REST Server - CRUD con MongoDB    
-> [CRUD con MongoDB](https://github.com/Paserno/node-express-restserver-fst)
+> [CRUD con MongoDB](https://github.com/Paserno/node-express-restserver-fst#rest-server---crud-con-mongodb)
+
 ## 3. REST Server - Autentificación de usuario - JWT
-> [JWT](https://github.com/Paserno/node-express-restserver-fst)
+> [JWT](https://github.com/Paserno/node-express-restserver-fst#rest-server---autentificación-de-usuario---jwt)
 
 ## 4. REST Server - Google Sign in - Frontend y Backend
-> [Google Sign in](https://github.com/Paserno/node-express-restserver-fst)
+> [Google Sign in](https://github.com/Paserno/node-express-restserver-fst#rest-server---google-sign-in---frontend-y-backend)
 
 ## 5. REST Server - Categorías y Productos
-> [Categorías y Productos](https://github.com/Paserno/node-express-restserver-fst)
+> [Categorías y Productos](https://github.com/Paserno/node-express-restserver-fst#rest-server---categorías-y-productos)
 
 ## 6. REST Server - Carga de Archivo y Protección
-> [Carga de Archivo](https://github.com/Paserno/node-express-restserver-fst)
+> [Carga de Archivo](https://github.com/Paserno/node-express-restserver-fst#rest-server---carga-de-archivo-y-protección)
 
 #
 # REST Server con Node.js y Express
@@ -317,7 +318,7 @@ const userGet = (req = request, res = response) => {
 <br><br>
 
 #
-> [Volver](https://github.com/Paserno/node-express-restserver-fst)
+> [Volver](https://github.com/Paserno/node-express-restserver-fst#contenido)
 # REST Server - CRUD con MongoDB
 Este es un Rest Server - con adiciones como un CRUD hecho con MongoDB. Se utilizaron los siguientes elementos:
 * __[REST Server con Node.js y Express](https://github.com/Paserno/node-express-restserver-fst#rest-server-con-nodejs-y-express)__ _(Elemetos que se habian utilizado aquí +)_
@@ -811,7 +812,7 @@ const usuario = await Usuario.findByIdAndDelete(id);
 res.json(usuario);
 ````
 #
-> [Volver](https://github.com/Paserno/node-express-restserver-fst)
+> [Volver](https://github.com/Paserno/node-express-restserver-fst#contenido)
 
 # REST Server - Autentificación de usuario - JWT
 
@@ -1191,7 +1192,7 @@ const {
 } = require('../middlewares');
 ````
 #
-> [Volver](https://github.com/Paserno/node-express-restserver-fst)
+> [Volver](https://github.com/Paserno/node-express-restserver-fst#contenido)
 
 # REST Server - Google Sign in - Frontend y Backend
 
@@ -1435,7 +1436,7 @@ En el codigo de `index.html` realizaremos un __Logout__
         }
 ````
 #
-> [Volver](https://github.com/Paserno/node-express-restserver-fst)
+> [Volver](https://github.com/Paserno/node-express-restserver-fst#contenido)
 
 # REST Server - Categorías y Productos
 
@@ -2132,7 +2133,7 @@ case 'productos':
     break;
 ````
 #
-> [Volver](https://github.com/Paserno/node-express-restserver-fst)
+> [Volver](https://github.com/Paserno/node-express-restserver-fst#contenido)
 
 # REST Server - Carga de Archivo y Protección
 
