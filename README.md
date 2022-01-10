@@ -28,6 +28,8 @@ Este es un Rest Server Básico que sirve como cascarón y para aprender a config
 npm install
 ````
 #
+> __Elemento Posterior 👀:__ __[Socket Server Basico](https://github.com/Paserno/node-socket-server-basic)__
+#
 ### 1.- Express Basado en Clase
 Creamos lo mismo de __[Creación de un Webserver](https://github.com/Paserno/node-express-webserver-first#uso-de-express-)__ pero con clase esta vez.
 * Creamos la clase __Server__, con su constructor.
